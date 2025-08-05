@@ -68,22 +68,18 @@ export default function DraftAssistant() {
   const currentPage = Math.floor(offset / limit) + 1;
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className={`min-h-screen ${darkMode ? 'dark' : ''} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white`}>
       <div className="max-w-7xl mx-auto p-6">
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Draft Assistant</h1>
           <div className="flex items-center gap-4">
-            <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <span className="text-sm text-gray-600 dark:text-gray-300">
               {darkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
             </span>
             <button
               onClick={toggleTheme}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                darkMode 
-                  ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-600' 
-                  : 'bg-white text-gray-900 hover:bg-gray-100 shadow-sm border border-gray-300'
-              }`}
+              className="px-4 py-2 rounded-lg font-medium transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm border border-gray-300 dark:border-gray-600"
             >
               {darkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
             </button>
@@ -91,27 +87,19 @@ export default function DraftAssistant() {
         </div>
 
         {/* Modern Toolbar */}
-        <div className={`rounded-xl shadow-lg p-6 mb-6 ${
-          darkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
-        }`}>
+        <div className="rounded-xl shadow-lg p-6 mb-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
           {/* Filters Row */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
             <div className="flex flex-wrap gap-4">
               <div>
-                <label htmlFor="season" className={`block text-sm font-semibold mb-2 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label htmlFor="season" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                   Season
                 </label>
                 <select 
                   id="season"
                   value={season} 
                   onChange={(e) => setSeason(Number(e.target.value))}
-                  className={`border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    darkMode 
-                      ? 'border-gray-600 bg-gray-800 text-white' 
-                      : 'border-gray-300 bg-white text-gray-900'
-                  }`}
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
@@ -119,20 +107,14 @@ export default function DraftAssistant() {
               </div>
 
               <div>
-                <label htmlFor="position" className={`block text-sm font-semibold mb-2 ${
-                  darkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                                <label htmlFor="position" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                   Position
                 </label>
                 <select 
                   id="position"
                   value={position} 
                   onChange={(e) => setPosition(e.target.value)}
-                  className={`border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    darkMode 
-                      ? 'border-gray-600 bg-gray-800 text-white' 
-                      : 'border-gray-300 bg-white text-gray-900'
-                  }`}
+                  className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="">All Positions</option>
                   <option value="QB">QB</option>
@@ -143,17 +125,15 @@ export default function DraftAssistant() {
                   <option value="DEF">DEF</option>
                 </select>
               </div>
-
-              <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 Showing {startIndex}-{endIndex} of {totalPlayers} players
               </div>
             </div>
 
             {/* Search input */}
             <div className="w-full lg:w-auto">
-              <label htmlFor="search" className={`block text-sm font-semibold mb-2 ${
-                darkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
+              <label htmlFor="search" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                 Search Players
               </label>
               <input
@@ -162,11 +142,7 @@ export default function DraftAssistant() {
                 placeholder="Search player name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`border rounded-lg px-4 py-2 w-full lg:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  darkMode 
-                    ? 'border-gray-600 bg-gray-800 text-white placeholder-gray-400' 
-                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
-                }`}
+                className="border rounded-lg px-4 py-2 w-full lg:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
           </div>
@@ -177,27 +153,17 @@ export default function DraftAssistant() {
               <button 
                 onClick={() => handlePageChange(offset - limit)}
                 disabled={!hasPrevPage || loading}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  darkMode 
-                    ? 'border border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
-                }`}
+                className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 ← Previous
               </button>
-              <span className={`text-sm font-medium ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                 Page {currentPage} of {totalPages}
               </span>
               <button 
                 onClick={() => handlePageChange(offset + limit)}
                 disabled={!hasNextPage || loading}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  darkMode 
-                    ? 'border border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
-                    : 'border border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
-                }`}
+                className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Next →
               </button>
@@ -207,20 +173,16 @@ export default function DraftAssistant() {
 
         {loading && (
           <div className="text-center py-12">
-            <div className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
-              darkMode ? 'border-blue-500' : 'border-blue-600'
-            }`}></div>
-            <p className={`mt-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-500"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">
               Loading rankings...
             </p>
           </div>
         )}
 
         {error && (
-          <div className={`rounded-lg p-4 mb-6 ${
-            darkMode ? 'bg-red-900/20 border border-red-700' : 'bg-red-50 border border-red-200'
-          }`}>
-            <p className={darkMode ? 'text-red-400' : 'text-red-800'}>
+          <div className="rounded-lg p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700">
+            <p className="text-red-800 dark:text-red-400">
               Error: {error}
             </p>
           </div>
@@ -228,16 +190,14 @@ export default function DraftAssistant() {
 
         {!loading && !error && filteredPlayers.length === 0 && (
           <div className="text-center py-12">
-            <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+            <p className="text-gray-600 dark:text-gray-400">
               {searchTerm ? `No players found matching "${searchTerm}".` : "No players found for the selected criteria."}
             </p>
           </div>
         )}
 
         {!loading && !error && filteredPlayers.length > 0 && (
-          <div className={`rounded-xl shadow-lg overflow-hidden ${
-            darkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
-          }`}>
+          <div className="rounded-xl shadow-lg overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
             <PlayerTable players={filteredPlayers} selectedPosition={position} darkMode={darkMode} />
           </div>
         )}

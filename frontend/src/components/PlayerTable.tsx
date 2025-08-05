@@ -60,96 +60,68 @@ export default function PlayerTable({ players, selectedPosition, darkMode = true
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-        <thead className={`sticky top-0 z-10 ${
-          darkMode ? 'bg-gray-900' : 'bg-gray-50'
-        }`}>
+        <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900">
           <tr>
-            <th className={`px-4 py-3 text-left font-semibold ${
-              darkMode ? 'text-gray-300' : 'text-gray-700'
-            }`}>Rank</th>
+            <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Rank</th>
             <th 
-              className={`px-4 py-3 text-left font-semibold cursor-pointer group ${
-                darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-              }`}
+              className="px-4 py-3 text-left font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               onClick={() => handleSort('name')}
             >
               Name<SortIcon field="name" />
             </th>
             <th 
-              className={`px-4 py-3 text-left font-semibold cursor-pointer group ${
-                darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-              }`}
+              className="px-4 py-3 text-left font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               onClick={() => handleSort('position')}
             >
               Pos<SortIcon field="position" />
             </th>
             <th 
-              className={`px-4 py-3 text-left font-semibold cursor-pointer group ${
-                darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-              }`}
+              className="px-4 py-3 text-left font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               onClick={() => handleSort('team')}
             >
               Team<SortIcon field="team" />
             </th>
             <th 
-              className={`px-4 py-3 text-right font-semibold cursor-pointer group ${
-                darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-              }`}
+              className="px-4 py-3 text-right font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               onClick={() => handleSort('total_points')}
             >
               Points<SortIcon field="total_points" />
             </th>
             <th 
-              className={`px-4 py-3 text-right font-semibold cursor-pointer group ${
-                darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-              }`}
+              className="px-4 py-3 text-right font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               onClick={() => handleSort('games_played')}
             >
               Games<SortIcon field="games_played" />
             </th>
             <th 
-              className={`px-4 py-3 text-right font-semibold cursor-pointer group ${
-                darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-              }`}
+              className="px-4 py-3 text-right font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               onClick={() => handleSort('avg_points')}
             >
               Avg<SortIcon field="avg_points" />
             </th>
           </tr>
         </thead>
-        <tbody className={`divide-y ${
-          darkMode ? 'divide-gray-700' : 'divide-gray-200'
-        }`}>
-          {sortedPlayers.map((player, i) => (
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          {sortedPlayers.map((player, index) => (
             <tr 
-              key={player.name + i} 
+              key={player.name + index}
               className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer ${
-                i < 5 ? "bg-gradient-to-r from-yellow-100/50 to-transparent dark:from-yellow-900/20" : ""
-              } ${i % 2 === 0 ? (darkMode ? "bg-gray-800" : "bg-white") : (darkMode ? "bg-gray-900" : "bg-gray-50")}`}
+                index < 5 ? "bg-gradient-to-r from-yellow-100/50 to-transparent dark:from-yellow-900/20" : ""
+              } ${
+                index % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900"
+              }`}
             >
-              <td className={`px-4 py-3 font-medium ${
-                darkMode ? 'text-gray-300' : 'text-gray-900'
-              }`}>{i + 1}</td>
-              <td className={`px-4 py-3 font-semibold ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}>{player.name}</td>
+              <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-300">{index + 1}</td>
+              <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white">{player.name}</td>
               <td className="px-4 py-3">
                 <span className={`px-3 py-1 text-xs font-bold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className={`px-4 py-3 font-medium ${
-                darkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>{player.team}</td>
-              <td className={`px-4 py-3 text-right font-mono font-semibold ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}>{player.total_points.toFixed(2)}</td>
-              <td className={`px-4 py-3 text-right ${
-                darkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>{player.games_played}</td>
-              <td className={`px-4 py-3 text-right font-mono font-semibold ${
-                darkMode ? 'text-white' : 'text-gray-900'
-              }`}>{player.avg_points.toFixed(2)}</td>
+              <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{player.team}</td>
+              <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900 dark:text-white">{player.total_points.toFixed(2)}</td>
+              <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">{player.games_played}</td>
+              <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900 dark:text-white">{player.avg_points.toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
