@@ -1,0 +1,13 @@
+{
+  "name": "draft",
+  "version": "1.0.0",
+  "description": "Draft application with frontend and backend",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "start": "cd frontend && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+} 

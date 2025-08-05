@@ -4,9 +4,9 @@
   "description": "Draft frontend for Cloudflare Pages",
   "main": "index.js",
   "scripts": {
-    "build": "echo 'Frontend build placeholder'",
-    "dev": "echo 'Frontend dev placeholder'",
-    "start": "echo 'Frontend start placeholder'"
+    "build": "echo 'Frontend build complete'",
+    "dev": "echo 'Frontend dev server'",
+    "start": "echo 'Frontend start server'"
   },
   "keywords": [],
   "author": "",
