@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import PlayerTable from "../components/PlayerTable";
-import { getRankings } from "../lib/api";
-import type { Player } from "../lib/api";
+import React, { useState, useEffect } from 'react';
+import { getRankings } from '../lib/api';
+import type { Player } from '../lib/api';
+import PlayerTable from '../components/PlayerTable';
+import PlayerModal from '../components/PlayerModal';
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
 export default function DraftAssistant() {
@@ -36,6 +37,17 @@ export default function DraftAssistant() {
     const saved = localStorage.getItem('draft-sort-direction');
     return (saved === 'asc' || saved === 'desc') ? saved : 'desc';
   });
+
+  // Modal state
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Watchlist state
+  const [watchlist, setWatchlist] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('draft-watchlist');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+  const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
 
   // Theme toggle handler with console logging
   const toggleTheme = () => {
@@ -75,6 +87,17 @@ export default function DraftAssistant() {
       .finally(() => setLoading(false));
   }, [season, position, limit]);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isModalOpen]);
+
   // Handle filter changes
   const handleSeasonChange = (newSeason: number) => {
     setSeason(newSeason);
@@ -95,6 +118,51 @@ export default function DraftAssistant() {
     setSortColumn(column);
     setSortDirection(direction);
     saveFilters(season, position, searchTerm, column, direction);
+  };
+
+  const handlePlayerClick = (player: Player) => {
+    setSelectedPlayer(player);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPlayer(null);
+  };
+
+  const handleToggleWatchlist = (playerName: string) => {
+    const newWatchlist = new Set(watchlist);
+    if (newWatchlist.has(playerName)) {
+      newWatchlist.delete(playerName);
+    } else {
+      newWatchlist.add(playerName);
+    }
+    setWatchlist(newWatchlist);
+    localStorage.setItem('draft-watchlist', JSON.stringify([...newWatchlist]));
+  };
+
+  const handleExportCSV = () => {
+    const csvContent = [
+      ['Name', 'Position', 'Team', 'Total Points', 'Games Played', 'Avg Points'],
+      ...filteredPlayers.map(player => [
+        player.name,
+        player.position,
+        player.team,
+        player.total_points.toFixed(2),
+        player.games_played.toString(),
+        player.avg_points.toFixed(2)
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `draft-rankings-${season}-${position || 'all'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   // Handle pagination
@@ -206,6 +274,26 @@ export default function DraftAssistant() {
                 Showing {startIndex}-{endIndex} of {totalPlayers} players
               </div>
             </div>
+
+            {/* Draft Tools */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowWatchlistOnly(!showWatchlistOnly)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  showWatchlistOnly 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                {showWatchlistOnly ? 'Show All' : `Watchlist (${watchlist.size})`}
+              </button>
+              <button
+                onClick={handleExportCSV}
+                className="px-4 py-2 rounded-lg font-medium transition-colors bg-green-600 text-white hover:bg-green-700"
+              >
+                Export CSV
+              </button>
+            </div>
           </div>
 
           {/* Pagination controls */}
@@ -265,10 +353,22 @@ export default function DraftAssistant() {
               onSort={handleSort}
               sortColumn={sortColumn}
               sortDirection={sortDirection}
+              onPlayerClick={handlePlayerClick}
+              watchlist={watchlist}
+              onToggleWatchlist={handleToggleWatchlist}
+              showWatchlistOnly={showWatchlistOnly}
             />
           </div>
         )}
       </div>
+
+      {selectedPlayer && (
+        <PlayerModal
+          player={selectedPlayer}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 } 

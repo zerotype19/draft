@@ -8,6 +8,10 @@ interface PlayerTableProps {
   onSort: (column: string, direction: 'asc' | 'desc') => void;
   sortColumn: string;
   sortDirection: 'asc' | 'desc';
+  onPlayerClick: (player: Player) => void;
+  watchlist: Set<string>;
+  onToggleWatchlist: (playerId: string) => void;
+  showWatchlistOnly: boolean;
 }
 
 // Position badge styling function with professional colors and opacity
@@ -30,7 +34,11 @@ export default function PlayerTable({
   selectedPosition, 
   onSort,
   sortColumn,
-  sortDirection
+  sortDirection,
+  onPlayerClick,
+  watchlist,
+  onToggleWatchlist,
+  showWatchlistOnly
 }: PlayerTableProps) {
   const handleSort = (field: SortField) => {
     if (sortColumn === field) {
@@ -56,6 +64,11 @@ export default function PlayerTable({
     }
   });
 
+  // Filter by watchlist if needed
+  const filteredPlayers = showWatchlistOnly 
+    ? sortedPlayers.filter(player => watchlist.has(player.name))
+    : sortedPlayers;
+
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortColumn !== field) return <span className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span>;
     return <span className="ml-1 text-blue-500">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
@@ -66,6 +79,20 @@ export default function PlayerTable({
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
         <thead className="sticky top-0 z-10 bg-gray-900 dark:bg-gray-900 border-b border-gray-700 dark:border-gray-700">
           <tr>
+            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 w-12">
+              <input
+                type="checkbox"
+                className="rounded border-gray-300 dark:border-gray-600"
+                checked={filteredPlayers.length > 0 && filteredPlayers.every(p => watchlist.has(p.name))}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    filteredPlayers.forEach(p => onToggleWatchlist(p.name));
+                  } else {
+                    filteredPlayers.forEach(p => onToggleWatchlist(p.name));
+                  }
+                }}
+              />
+            </th>
             <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 w-16">Rank</th>
             <th 
               className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white"
@@ -106,7 +133,7 @@ export default function PlayerTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-          {sortedPlayers.map((player, index) => (
+          {filteredPlayers.map((player, index) => (
             <tr 
               key={player.name + index}
               className={`hover:bg-gray-800/50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${
@@ -114,7 +141,19 @@ export default function PlayerTable({
               } ${
                 index % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900"
               }`}
+              onClick={() => onPlayerClick(player)}
             >
+              <td className="px-4 py-3">
+                <input
+                  type="checkbox"
+                  className="rounded border-gray-300 dark:border-gray-600"
+                  checked={watchlist.has(player.name)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onToggleWatchlist(player.name);
+                  }}
+                />
+              </td>
               <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-300">{index + 1}</td>
               <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white">{player.name}</td>
               <td className="px-4 py-3">
