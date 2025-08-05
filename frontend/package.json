@@ -1,0 +1,14 @@
+{
+  "name": "draft-frontend",
+  "version": "1.0.0",
+  "description": "Draft frontend for Cloudflare Pages",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Frontend build placeholder'",
+    "dev": "echo 'Frontend dev placeholder'",
+    "start": "echo 'Frontend start placeholder'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+} 
