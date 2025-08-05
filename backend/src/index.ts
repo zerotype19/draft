@@ -3,13 +3,10 @@ import import2023 from "./etl/import2023";
 import import2024 from "./etl/import2024";
 import { recalcPoints } from "./recalcPoints";
 import { getRankings } from "./rankings";
-
-// CORS headers for cross-origin requests
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+import { getDraftRankings } from "./draft-rankings";
+import { getRecommendations } from "./recommendations";
+import { getWaivers } from "./waivers";
+import { corsHeaders } from "./cors";
 
 export default {
   async fetch(req: Request, env: Env) {
@@ -123,6 +120,95 @@ export default {
       } catch (error) {
         console.error("Rankings error:", error);
         return new Response(`Rankings failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/draft-rankings") {
+      try {
+        const season = url.searchParams.get("season");
+        const week = url.searchParams.get("week");
+        const position = url.searchParams.get("position");
+        const limit = url.searchParams.get("limit");
+        const offset = url.searchParams.get("offset");
+
+        const rankings = await getDraftRankings(
+          env,
+          season ? Number(season) : undefined,
+          position || undefined,
+          limit ? Number(limit) : 50,
+          offset ? Number(offset) : 0
+        );
+        return new Response(JSON.stringify(rankings), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Draft Rankings error:", error);
+        return new Response(`Draft Rankings failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/recommendations") {
+      try {
+        const week = url.searchParams.get("week");
+        const position = url.searchParams.get("position");
+        const limit = url.searchParams.get("limit");
+
+        if (!week) {
+          return new Response("Week parameter is required", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        const recommendations = await getRecommendations(
+          env,
+          Number(week),
+          position || undefined,
+          limit ? Number(limit) : 50
+        );
+        return new Response(JSON.stringify(recommendations), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Recommendations error:", error);
+        return new Response(`Recommendations failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/waivers") {
+      try {
+        const week = url.searchParams.get("week");
+        const position = url.searchParams.get("position");
+        const limit = url.searchParams.get("limit");
+
+        if (!week) {
+          return new Response("Week parameter is required", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        const waivers = await getWaivers(
+          env,
+          Number(week),
+          position || undefined,
+          limit ? Number(limit) : 50
+        );
+        return new Response(JSON.stringify(waivers), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Waivers error:", error);
+        return new Response(`Waivers failed: ${error}`, { 
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "text/plain" }
         });
