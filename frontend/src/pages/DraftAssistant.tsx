@@ -75,7 +75,7 @@ export default function DraftAssistant() {
   const currentPage = Math.floor(offset / limit) + 1;
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white`}>
+    <div className={`min-h-screen ${darkMode ? 'dark' : ''} ${darkMode ? 'bg-black' : 'bg-white'} text-gray-900 dark:text-white`}>
       <div className="max-w-7xl mx-auto p-6">
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center mb-8">
