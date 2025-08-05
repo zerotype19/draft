@@ -5,15 +5,25 @@ import type { Player } from "../lib/api";
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
 export default function DraftAssistant() {
-  const [season, setSeason] = useState(2024);
-  const [position, setPosition] = useState("");
+  const [season, setSeason] = useState(() => {
+    const saved = localStorage.getItem('draft-season');
+    return saved ? parseInt(saved) : 2024;
+  });
+  const [position, setPosition] = useState(() => {
+    return localStorage.getItem('draft-position') || "";
+  });
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('draft-dark-mode');
+    return saved ? JSON.parse(saved) : true;
+  });
   
   // Search and pagination state
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => {
+    return localStorage.getItem('draft-search') || "";
+  });
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
   const [totalPlayers, setTotalPlayers] = useState(0);
@@ -24,12 +34,20 @@ export default function DraftAssistant() {
     console.log('Theme toggle clicked! Current:', darkMode, 'New:', newMode);
     console.log('Button clicked at:', new Date().toISOString());
     setDarkMode(newMode);
+    localStorage.setItem('draft-dark-mode', JSON.stringify(newMode));
     
     // Force a re-render to ensure the change is applied
     setTimeout(() => {
       console.log('Theme state after toggle:', newMode);
       console.log('Dark class should be:', newMode ? 'dark' : '');
     }, 100);
+  };
+
+  // Save filters to localStorage
+  const saveFilters = (newSeason: number, newPosition: string, newSearch: string) => {
+    localStorage.setItem('draft-season', newSeason.toString());
+    localStorage.setItem('draft-position', newPosition);
+    localStorage.setItem('draft-search', newSearch);
   };
 
   useEffect(() => {
@@ -45,6 +63,22 @@ export default function DraftAssistant() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [season, position, limit]);
+
+  // Handle filter changes
+  const handleSeasonChange = (newSeason: number) => {
+    setSeason(newSeason);
+    saveFilters(newSeason, position, searchTerm);
+  };
+
+  const handlePositionChange = (newPosition: string) => {
+    setPosition(newPosition);
+    saveFilters(season, newPosition, searchTerm);
+  };
+
+  const handleSearchChange = (newSearch: string) => {
+    setSearchTerm(newSearch);
+    saveFilters(season, position, newSearch);
+  };
 
   // Handle pagination
   const handlePageChange = async (newOffset: number) => {
@@ -75,7 +109,7 @@ export default function DraftAssistant() {
   const currentPage = Math.floor(offset / limit) + 1;
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''} ${darkMode ? 'bg-black' : 'bg-white'} text-gray-900 dark:text-white`}>
+    <div className={`min-h-screen ${darkMode ? 'dark' : ''} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white`}>
       <div className="max-w-7xl mx-auto p-6">
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center mb-8">
@@ -98,6 +132,21 @@ export default function DraftAssistant() {
 
         {/* Modern Toolbar */}
         <div className="rounded-xl shadow-lg p-6 mb-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          {/* Search Bar - Prominent placement */}
+          <div className="mb-6">
+            <label htmlFor="search" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              Search Players
+            </label>
+            <input
+              id="search"
+              type="text"
+              placeholder="Search player name..."
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="border rounded-lg px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base"
+            />
+          </div>
+
           {/* Filters Row */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
             <div className="flex flex-wrap gap-4">
@@ -108,22 +157,22 @@ export default function DraftAssistant() {
                 <select 
                   id="season"
                   value={season} 
-                  onChange={(e) => setSeason(Number(e.target.value))}
+                  onChange={(e) => handleSeasonChange(Number(e.target.value))}
                   className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
                 </select>
               </div>
-
+              
               <div>
-                                <label htmlFor="position" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                <label htmlFor="position" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
                   Position
                 </label>
                 <select 
                   id="position"
                   value={position} 
-                  onChange={(e) => setPosition(e.target.value)}
+                  onChange={(e) => handlePositionChange(e.target.value)}
                   className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
                   <option value="">All Positions</option>
@@ -140,21 +189,6 @@ export default function DraftAssistant() {
                 Showing {startIndex}-{endIndex} of {totalPlayers} players
               </div>
             </div>
-
-            {/* Search input */}
-            <div className="w-full lg:w-auto">
-              <label htmlFor="search" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
-                Search Players
-              </label>
-              <input
-                id="search"
-                type="text"
-                placeholder="Search player name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border rounded-lg px-4 py-2 w-full lg:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-            </div>
           </div>
 
           {/* Pagination controls */}
@@ -163,17 +197,17 @@ export default function DraftAssistant() {
               <button 
                 onClick={() => handlePageChange(offset - limit)}
                 disabled={!hasPrevPage || loading}
-                className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
               >
                 ← Previous
               </button>
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
                 Page {currentPage} of {totalPages}
               </span>
               <button 
                 onClick={() => handlePageChange(offset + limit)}
                 disabled={!hasNextPage || loading}
-                className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm"
               >
                 Next →
               </button>
