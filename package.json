@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Draft application with frontend and backend",
   "scripts": {
-    "build": "mkdir -p dist && cp -r frontend/* dist/ && echo 'Build complete - files copied to dist/'",
+    "build": "cd frontend && npm run build",
     "dev": "cd frontend && npm run dev",
-    "start": "cd frontend && npm start"
+    "start": "cd frontend && npm run preview"
   },
   "keywords": [],
   "author": "",
