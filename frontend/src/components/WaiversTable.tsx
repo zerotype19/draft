@@ -61,15 +61,15 @@ export default function WaiversTable({
             </th>
             <th 
               className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
-              onClick={() => onSort('projected_points', sortDirection === 'asc' ? 'desc' : 'asc')}
+              onClick={() => onSort('ros_projection', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
-                Projected
-                <SortIcon field="projected_points" />
+                ROS Projection
+                <SortIcon field="ros_projection" />
               </div>
             </th>
             <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Priority</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Reason</th>
+            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Trend</th>
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -99,17 +99,15 @@ export default function WaiversTable({
                 {player.avg_points.toFixed(1)}
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
-                {player.projected_points.toFixed(1)}
+                {player.ros_projection.toFixed(1)}
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(player.priority)}`}>
-                  {player.priority}
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(player.pickup_priority)}`}>
+                  {player.pickup_priority}
                 </span>
               </td>
-              <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                <div className="max-w-xs truncate">
-                  {player.reason}
-                </div>
+              <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-900 dark:text-white">
+                {player.recent_trend}
               </td>
             </tr>
           ))}

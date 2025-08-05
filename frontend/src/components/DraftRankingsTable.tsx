@@ -141,16 +141,16 @@ export default function DraftRankingsTable({
                 {player.team}
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
-                {player.injury_status && (
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getInjuryStatusColor(player.injury_status)}`}>
-                    {player.injury_status}
+                {player.injuryStatus && (
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getInjuryStatusColor(player.injuryStatus)}`}>
+                    {player.injuryStatus}
                   </span>
                 )}
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
-                {player.sos && (
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSOSColor(player.sos)}`}>
-                    {player.sos}
+                {player.sosScore && (
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSOSColor(player.sosScore)}`}>
+                    {player.sosScore}
                   </span>
                 )}
               </td>
@@ -161,18 +161,18 @@ export default function DraftRankingsTable({
                 {player.avg_points.toFixed(2)}
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`text-sm font-semibold ${getTierColor(player.tier || 1)}`}>
-                  {player.tier || 'N/A'}
+                <span className={`text-sm font-semibold ${getTierColor(player.tier)}`}>
+                  {player.tier}
                 </span>
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`text-sm font-semibold ${getConsistencyColor(player.consistency_score || 0)}`}>
-                  {player.consistency_score ? (player.consistency_score * 100).toFixed(0) + '%' : 'N/A'}
+                <span className={`text-sm font-semibold ${getConsistencyColor(player.consistency_score)}`}>
+                  {(player.consistency_score * 100).toFixed(0)}%
                 </span>
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`text-sm font-semibold ${getBoomBustColor(player.boom_percentage || 0, player.bust_percentage || 0)}`}>
-                  {player.boom_percentage && player.bust_percentage ? `${player.boom_percentage.toFixed(0)}%/${player.bust_percentage.toFixed(0)}%` : 'N/A'}
+                <span className={`text-sm font-semibold ${getBoomBustColor(player.boom_rate, player.bust_rate)}`}>
+                  {player.boom_rate.toFixed(0)}%/{player.bust_rate.toFixed(0)}%
                 </span>
               </td>
               <td className="px-4 py-3 whitespace-nowrap text-center">
