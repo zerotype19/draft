@@ -51,6 +51,17 @@ export async function importSeason(env: Env, season: number, url: string, week?:
       });
     }
 
+    // Additional logging for different positions to debug team data
+    if (processedRows < 20 && ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(row.position)) {
+      console.log(`${row.position} player team data:`, {
+        name: row.player_name,
+        team: row.team,
+        recent_team: row.recent_team,
+        posteam: row.posteam,
+        final_team: row.team?.trim() || row.recent_team?.trim() || row.posteam?.trim() || 'FA'
+      });
+    }
+
     // Validate required fields
     if (!row.player_id || !row.player_name) {
       console.warn(`Skipping row ${processedRows + skippedRows + 1} for season ${season}: missing player_id or player_name`);
@@ -59,8 +70,15 @@ export async function importSeason(env: Env, season: number, url: string, week?:
     }
 
     try {
-      // Determine team abbreviation from multiple possible fields
-      const teamAbbrev = row.team?.trim() || row.recent_team?.trim() || row.posteam?.trim() || 'FA';
+      // Determine team abbreviation from multiple possible fields with better fallback logic
+      const teamAbbrev = 
+        row.recent_team?.trim() || 
+        row.team?.trim() || 
+        row.posteam?.trim() || 
+        'FA';
+      
+      // Validate team abbreviation (should be 2-3 letters)
+      const validTeam = /^[A-Z]{2,3}$/.test(teamAbbrev) ? teamAbbrev : 'FA';
       
       // Insert player if not exists
       await env.DB.prepare(
@@ -69,7 +87,7 @@ export async function importSeason(env: Env, season: number, url: string, week?:
         row.player_id,
         row.player_name,
         row.position || null,
-        teamAbbrev
+        validTeam
       ).run();
 
       // Add stat row with null/undefined handling
