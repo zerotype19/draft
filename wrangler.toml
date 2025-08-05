@@ -3,4 +3,5 @@ compatibility_date = "2025-08-05"
 
 [build]
 command = "npm run build"
+
 pages_build_output_dir = "frontend/dist" 
