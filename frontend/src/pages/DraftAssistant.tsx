@@ -3,7 +3,7 @@ import PlayerTable from "../components/PlayerTable";
 import { getRankings } from "../lib/api";
 import type { Player } from "../lib/api";
 
-// Professional Fantasy Draft Assistant with Dark/Light Mode
+// Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment
 export default function DraftAssistant() {
   const [season, setSeason] = useState(2024);
   const [position, setPosition] = useState("");
