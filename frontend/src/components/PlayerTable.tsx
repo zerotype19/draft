@@ -6,10 +6,11 @@ type SortDirection = 'asc' | 'desc';
 
 interface PlayerTableProps {
   players: Player[];
+  selectedPosition?: string;
 }
 
 // Position badge styling function
-function positionBadge(pos: string) {
+function positionBadge(pos: string, isSelected: boolean = false) {
   const colors: Record<string, string> = {
     QB: "bg-blue-500 text-white",
     RB: "bg-green-500 text-white",
@@ -18,10 +19,12 @@ function positionBadge(pos: string) {
     K: "bg-orange-500 text-white",
     DEF: "bg-gray-700 text-white"
   };
-  return colors[pos] || "bg-gray-300 text-black";
+  
+  const baseColor = colors[pos] || "bg-gray-300 text-black";
+  return isSelected ? baseColor.replace('bg-', 'bg-').replace('500', '600').replace('700', '800') : baseColor;
 }
 
-export default function PlayerTable({ players }: PlayerTableProps) {
+export default function PlayerTable({ players, selectedPosition }: PlayerTableProps) {
   const [sortField, setSortField] = useState<SortField>('total_points');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -56,8 +59,8 @@ export default function PlayerTable({ players }: PlayerTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse border border-gray-300 text-sm">
-        <thead>
-          <tr className="bg-gray-100">
+        <thead className="sticky top-0 bg-gray-100 z-10">
+          <tr>
             <th className="border p-2 text-left">Rank</th>
             <th 
               className="border p-2 text-left cursor-pointer hover:bg-gray-200"
@@ -78,19 +81,19 @@ export default function PlayerTable({ players }: PlayerTableProps) {
               Team<SortIcon field="team" />
             </th>
             <th 
-              className="border p-2 text-left cursor-pointer hover:bg-gray-200"
+              className="border p-2 text-right cursor-pointer hover:bg-gray-200"
               onClick={() => handleSort('total_points')}
             >
               Points<SortIcon field="total_points" />
             </th>
             <th 
-              className="border p-2 text-left cursor-pointer hover:bg-gray-200"
+              className="border p-2 text-right cursor-pointer hover:bg-gray-200"
               onClick={() => handleSort('games_played')}
             >
               Games<SortIcon field="games_played" />
             </th>
             <th 
-              className="border p-2 text-left cursor-pointer hover:bg-gray-200"
+              className="border p-2 text-right cursor-pointer hover:bg-gray-200"
               onClick={() => handleSort('avg_points')}
             >
               Avg<SortIcon field="avg_points" />
@@ -99,18 +102,18 @@ export default function PlayerTable({ players }: PlayerTableProps) {
         </thead>
         <tbody>
           {sortedPlayers.map((player, i) => (
-            <tr key={player.name + i} className="hover:bg-gray-50">
+            <tr key={player.name + i} className={`hover:bg-gray-50 ${i < 5 ? "bg-yellow-50" : ""}`}>
               <td className="border p-2">{i + 1}</td>
               <td className="border p-2 font-medium">{player.name}</td>
               <td className="border p-2">
-                <span className={`px-2 py-1 rounded text-xs ${positionBadge(player.position)}`}>
+                <span className={`px-2 py-1 rounded text-xs ${positionBadge(player.position, selectedPosition === player.position)}`}>
                   {player.position}
                 </span>
               </td>
               <td className="border p-2">{player.team || '-'}</td>
-              <td className="border p-2 font-mono">{player.total_points.toFixed(2)}</td>
-              <td className="border p-2">{player.games_played}</td>
-              <td className="border p-2 font-mono">{player.avg_points.toFixed(2)}</td>
+              <td className="border p-2 text-right font-mono">{player.total_points.toFixed(2)}</td>
+              <td className="border p-2 text-right">{player.games_played}</td>
+              <td className="border p-2 text-right font-mono">{player.avg_points.toFixed(2)}</td>
             </tr>
           ))}
         </tbody>

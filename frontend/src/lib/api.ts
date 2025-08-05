@@ -7,12 +7,17 @@ export interface Player {
   avg_points: number;
 }
 
+export interface RankingsResponse {
+  results: Player[];
+  total_count: number;
+}
+
 export async function getRankings(
   season: number, 
   position?: string, 
   limit: number = 50, 
   offset: number = 0
-): Promise<Player[]> {
+): Promise<RankingsResponse> {
   const params = new URLSearchParams();
   params.append("season", String(season));
   params.append("limit", String(limit));

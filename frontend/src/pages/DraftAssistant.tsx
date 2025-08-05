@@ -23,8 +23,8 @@ export default function DraftAssistant() {
     
     getRankings(season, position, limit, 0)
       .then((data) => {
-        setPlayers(data);
-        setTotalPlayers(data.length); // For now, assume this is the total
+        setPlayers(data.results);
+        setTotalPlayers(data.total_count);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ export default function DraftAssistant() {
     
     try {
       const data = await getRankings(season, position, limit, newOffset);
-      setPlayers(data);
+      setPlayers(data.results);
       setOffset(newOffset);
     } catch (err: any) {
       setError(err.message);
@@ -99,7 +99,7 @@ export default function DraftAssistant() {
             </div>
 
             <div className="text-sm text-gray-600">
-              Showing {startIndex}-{endIndex} of ~{totalPlayers} players
+              Showing {startIndex}-{endIndex} of {totalPlayers} players
             </div>
           </div>
 
@@ -163,7 +163,7 @@ export default function DraftAssistant() {
 
         {!loading && !error && filteredPlayers.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <PlayerTable players={filteredPlayers} />
+            <PlayerTable players={filteredPlayers} selectedPosition={position} />
           </div>
         )}
       </div>

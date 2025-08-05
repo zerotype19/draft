@@ -1,6 +1,33 @@
 import { Env } from "./db";
 
 export async function getRankings(env: Env, season?: number, week?: number, position?: string, limit: number = 50, offset: number = 0) {
+  // Build the base query for counting total results
+  let countQuery = `
+    SELECT COUNT(DISTINCT p.player_id) as total_count
+    FROM stats_custom_scored s
+    JOIN players p ON p.player_id = s.player_id
+    WHERE 1=1
+  `;
+  const countParams: any[] = [];
+
+  if (season) {
+    countQuery += ` AND s.season = ?`;
+    countParams.push(season);
+  }
+  if (week) {
+    countQuery += ` AND s.week = ?`;
+    countParams.push(week);
+  }
+  if (position) {
+    countQuery += ` AND p.position = ?`;
+    countParams.push(position);
+  }
+
+  // Get total count
+  const countResult = await env.DB.prepare(countQuery).bind(...countParams).first();
+  const totalCount = countResult?.total_count || 0;
+
+  // Build the main query for results
   let query = `
     SELECT p.name, p.position, p.team,
            SUM(s.total_points) as total_points,
@@ -38,5 +65,8 @@ export async function getRankings(env: Env, season?: number, week?: number, posi
     console.warn(`No rankings found for filters: season=${season}, week=${week}, position=${position}`);
   }
 
-  return result.results || [];
+  return {
+    results: result.results || [],
+    total_count: totalCount
+  };
 } 
