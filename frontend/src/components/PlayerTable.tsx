@@ -1,5 +1,4 @@
-import React from 'react';
-import { Player } from '../lib/api';
+import type { Player } from '../lib/api';
 
 type SortField = 'name' | 'position' | 'team' | 'total_points' | 'games_played' | 'avg_points';
 
