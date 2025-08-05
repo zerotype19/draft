@@ -57,7 +57,7 @@ export default function DraftAssistant() {
   });
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
   const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers' | 'league-setup'>('rankings');
-  const [showLeagueSetup, setShowLeagueSetup] = useState(false);
+
   const [week, setWeek] = useState(18);
 
   // Check if league settings exist and redirect if needed

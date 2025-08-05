@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { 
-  LeagueSettings, 
   DEFAULT_SCORING_SETTINGS, 
   DEFAULT_ROSTER_SLOTS,
   getLeagueSettings,
@@ -8,6 +7,7 @@ import {
   getRoster,
   saveRoster
 } from '../lib/localStorage';
+import type { LeagueSettings } from '../lib/localStorage';
 import { getRankings } from '../lib/api';
 import type { Player } from '../lib/api';
 
