@@ -15,7 +15,7 @@ export default function WaiversTable({
   onSort,
   onPlayerClick 
 }: WaiversTableProps) {
-  const getPickupPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'HIGH': return 'text-green-400 bg-green-400/10';
       case 'MEDIUM': return 'text-yellow-400 bg-yellow-400/10';
@@ -36,65 +36,80 @@ export default function WaiversTable({
     return colors[position] || "bg-gray-500/80 text-white";
   };
 
+  const SortIcon = ({ field }: { field: string }) => {
+    if (sortColumn !== field) return <span className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span>;
+    return <span className="ml-1 text-purple-600 dark:text-purple-400">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
+  };
+
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-700">
-        <thead className="sticky top-0 z-10 bg-gray-900 dark:bg-gray-900 border-b border-gray-700 dark:border-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Rank</th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Name</th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Pos</th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Team</th>
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
             <th 
-              className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('ros_projection', sortDirection === 'asc' ? 'desc' : 'asc')}
-            >
-              ROS Projection {sortColumn === 'ros_projection' && (sortDirection === 'asc' ? '↑' : '↓')}
-            </th>
-            <th 
-              className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
+              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('avg_points', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
-              Avg Points {sortColumn === 'avg_points' && (sortDirection === 'asc' ? '↑' : '↓')}
+              <div className="flex items-center justify-end">
+                Avg Points
+                <SortIcon field="avg_points" />
+              </div>
             </th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-center">Breakout</th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-center">Trend</th>
-            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-center">Priority</th>
+            <th 
+              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              onClick={() => onSort('projected_points', sortDirection === 'asc' ? 'desc' : 'asc')}
+            >
+              <div className="flex items-center justify-end">
+                Projected
+                <SortIcon field="projected_points" />
+              </div>
+            </th>
+            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Priority</th>
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Reason</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-700">
-          {players.map((player, i) => (
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          {players.map((player, index) => (
             <tr 
               key={player.name}
-              className={`hover:bg-gray-800/50 transition-colors ${onPlayerClick ? 'cursor-pointer' : ''}`}
+              className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => onPlayerClick?.(player)}
             >
-              <td className="px-4 py-2 text-sm text-gray-300">{i + 1}</td>
-              <td className="px-4 py-2 text-sm font-medium text-white">{player.name}</td>
-              <td className="px-4 py-2 text-sm">
-                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getPositionColor(player.position)}`}>
+              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+                {index + 1}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  {player.name}
+                </div>
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPositionColor(player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-4 py-2 text-sm text-gray-300">{player.team}</td>
-              <td className="px-4 py-2 text-sm text-gray-300 text-right font-medium">
-                {player.ros_projection.toFixed(1)}
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                {player.team}
               </td>
-              <td className="px-4 py-2 text-sm text-gray-300 text-right">
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
                 {player.avg_points.toFixed(1)}
               </td>
-              <td className="px-4 py-2 text-sm text-center">
-                {player.breakout_flag && (
-                  <span className="text-2xl" title="Recent breakout candidate">🔥</span>
-                )}
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+                {player.projected_points.toFixed(1)}
               </td>
-              <td className="px-4 py-2 text-sm text-center text-gray-300">
-                {player.recent_trend}
-              </td>
-              <td className="px-4 py-2 text-sm text-center">
-                <span className={`px-3 py-1 text-xs font-bold rounded-full ${getPickupPriorityColor(player.pickup_priority)}`}>
-                  {player.pickup_priority}
+              <td className="px-4 py-3 whitespace-nowrap text-center">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(player.priority)}`}>
+                  {player.priority}
                 </span>
+              </td>
+              <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                <div className="max-w-xs truncate">
+                  {player.reason}
+                </div>
               </td>
             </tr>
           ))}

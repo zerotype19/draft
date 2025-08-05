@@ -14,7 +14,7 @@ interface PlayerTableProps {
   showWatchlistOnly: boolean;
 }
 
-// Position badge styling function with professional colors and opacity
+// Position badge styling function with professional colors
 function positionBadge(pos: string, isSelected: boolean = false) {
   const colors: Record<string, string> = {
     QB: "bg-blue-500/80 text-white",
@@ -71,18 +71,18 @@ export default function PlayerTable({
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortColumn !== field) return <span className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span>;
-    return <span className="ml-1 text-blue-500">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
+    return <span className="ml-1 text-purple-600 dark:text-purple-400">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
   };
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-        <thead className="sticky top-0 z-10 bg-gray-900 dark:bg-gray-900 border-b border-gray-700 dark:border-gray-700">
+      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 w-12">
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-12">
               <input
                 type="checkbox"
-                className="rounded border-gray-300 dark:border-gray-600"
+                className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
                 checked={filteredPlayers.length > 0 && filteredPlayers.every(p => watchlist.has(p.name))}
                 onChange={(e) => {
                   if (e.target.checked) {
@@ -93,60 +93,74 @@ export default function PlayerTable({
                 }}
               />
             </th>
-            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 w-16">Rank</th>
+            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-16 font-mono">Rank</th>
             <th 
-              className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white"
+              className="px-4 py-3 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => handleSort('name')}
             >
-              Name<SortIcon field="name" />
+              <div className="flex items-center">
+                Name
+                <SortIcon field="name" />
+              </div>
             </th>
             <th 
-              className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-20"
+              className="px-4 py-3 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => handleSort('position')}
             >
-              Pos<SortIcon field="position" />
+              <div className="flex items-center">
+                Pos
+                <SortIcon field="position" />
+              </div>
             </th>
             <th 
-              className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-16"
+              className="px-4 py-3 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => handleSort('team')}
             >
-              Team<SortIcon field="team" />
+              <div className="flex items-center">
+                Team
+                <SortIcon field="team" />
+              </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white"
+              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => handleSort('total_points')}
             >
-              Points<SortIcon field="total_points" />
+              <div className="flex items-center justify-end">
+                Points
+                <SortIcon field="total_points" />
+              </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-20"
+              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => handleSort('games_played')}
             >
-              Games<SortIcon field="games_played" />
+              <div className="flex items-center justify-end">
+                Games
+                <SortIcon field="games_played" />
+              </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-20"
+              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => handleSort('avg_points')}
             >
-              Avg<SortIcon field="avg_points" />
+              <div className="flex items-center justify-end">
+                Avg
+                <SortIcon field="avg_points" />
+              </div>
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           {filteredPlayers.map((player, index) => (
             <tr 
-              key={player.name + index}
-              className={`hover:bg-gray-800/50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${
-                index < 3 && selectedPosition === player.position ? "bg-gradient-to-r from-yellow-600/20 to-transparent" : ""
-              } ${
-                index % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900"
-              }`}
+              key={player.name} 
+              className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => onPlayerClick(player)}
             >
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 whitespace-nowrap">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 dark:border-gray-600"
+                  className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
                   checked={watchlist.has(player.name)}
                   onChange={(e) => {
                     e.stopPropagation();
@@ -154,17 +168,31 @@ export default function PlayerTable({
                   }}
                 />
               </td>
-              <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-300">{index + 1}</td>
-              <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white">{player.name}</td>
-              <td className="px-4 py-3">
-                <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
+              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+                {index + 1}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                  {player.name}
+                </div>
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-4 py-3 font-medium text-gray-700 dark:text-gray-300">{player.team}</td>
-              <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900 dark:text-white">{player.total_points.toFixed(2)}</td>
-              <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">{player.games_played}</td>
-              <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900 dark:text-white">{player.avg_points.toFixed(2)}</td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                {player.team}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+                {player.total_points.toFixed(2)}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+                {player.games_played}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+                {player.avg_points.toFixed(2)}
+              </td>
             </tr>
           ))}
         </tbody>
