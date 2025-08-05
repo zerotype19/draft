@@ -79,7 +79,7 @@ export default function PlayerTable({
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-12">
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-12">
               <input
                 type="checkbox"
                 className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
@@ -93,9 +93,9 @@ export default function PlayerTable({
                 }}
               />
             </th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-16 font-mono">Rank</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-16 font-mono">Rank</th>
             <th 
-              className="px-4 py-3 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
+              className="px-6 py-4 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => handleSort('name')}
             >
               <div className="flex items-center">
@@ -104,7 +104,7 @@ export default function PlayerTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
+              className="px-6 py-4 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => handleSort('position')}
             >
               <div className="flex items-center">
@@ -113,7 +113,7 @@ export default function PlayerTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
+              className="px-6 py-4 text-left text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => handleSort('team')}
             >
               <div className="flex items-center">
@@ -122,7 +122,7 @@ export default function PlayerTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => handleSort('total_points')}
             >
               <div className="flex items-center justify-end">
@@ -131,7 +131,7 @@ export default function PlayerTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => handleSort('games_played')}
             >
               <div className="flex items-center justify-end">
@@ -140,7 +140,7 @@ export default function PlayerTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => handleSort('avg_points')}
             >
               <div className="flex items-center justify-end">
@@ -157,7 +157,7 @@ export default function PlayerTable({
               className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => onPlayerClick(player)}
             >
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap">
                 <input
                   type="checkbox"
                   className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
@@ -168,29 +168,29 @@ export default function PlayerTable({
                   }}
                 />
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900 dark:text-white">
                 {index + 1}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-xs font-medium text-gray-900 dark:text-white">
                   {player.name}
                 </div>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-white">
                 {player.team}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.total_points.toFixed(2)}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.games_played}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.avg_points.toFixed(2)}
               </td>
             </tr>

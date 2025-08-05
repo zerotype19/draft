@@ -53,12 +53,12 @@ export default function RecommendationsTable({
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('projected_points', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
@@ -67,7 +67,7 @@ export default function RecommendationsTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('weighted_avg', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
@@ -76,7 +76,7 @@ export default function RecommendationsTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-center text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
+              className="px-6 py-4 text-center text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => onSort('opponent_rank', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-center">
@@ -84,8 +84,8 @@ export default function RecommendationsTable({
                 <SortIcon field="opponent_rank" />
               </div>
             </th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Recommendation</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Reason</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Recommendation</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Reason</th>
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -95,37 +95,37 @@ export default function RecommendationsTable({
               className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => onPlayerClick?.(player)}
             >
-              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900 dark:text-white">
                 {index + 1}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-xs font-medium text-gray-900 dark:text-white">
                   {player.name}
                 </div>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPositionColor(player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-white">
                 {player.team}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.projected_points.toFixed(1)}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.weighted_avg.toFixed(1)}
               </td>
-              <td className={`px-4 py-3 whitespace-nowrap text-sm text-center font-medium ${getOpponentRankColor(player.opponent_rank)}`}>
+              <td className={`px-6 py-4 whitespace-nowrap text-xs text-center font-medium ${getOpponentRankColor(player.opponent_rank)}`}>
                 {player.opponent_rank}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
+              <td className="px-6 py-4 whitespace-nowrap text-center">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRecommendationColor(player.recommendation)}`}>
                   {player.recommendation}
                 </span>
               </td>
-              <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 text-xs text-gray-900 dark:text-white">
                 <div className="max-w-xs truncate">
                   {player.reason}
                 </div>

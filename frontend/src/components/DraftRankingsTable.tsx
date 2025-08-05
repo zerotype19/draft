@@ -87,14 +87,14 @@ export default function DraftRankingsTable({
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Status</th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">SOS</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Status</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">SOS</th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('total_points', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
@@ -103,7 +103,7 @@ export default function DraftRankingsTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('avg_points', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
@@ -111,10 +111,10 @@ export default function DraftRankingsTable({
                 <SortIcon field="avg_points" />
               </div>
             </th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Tier</th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Consistency</th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Boom/Bust</th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Trend</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Tier</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Consistency</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Boom/Bust</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Trend</th>
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -124,59 +124,59 @@ export default function DraftRankingsTable({
               className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => onPlayerClick?.(player)}
             >
-              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900 dark:text-white">
                 {index + 1}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-xs font-medium text-gray-900 dark:text-white">
                   {player.name}
                 </div>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPositionColor(player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-white">
                 {player.team}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
+              <td className="px-6 py-4 whitespace-nowrap text-center">
                 {player.injuryStatus && (
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getInjuryStatusColor(player.injuryStatus)}`}>
                     {player.injuryStatus}
                   </span>
                 )}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
+              <td className="px-6 py-4 whitespace-nowrap text-center">
                 {player.sosScore && (
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSOSColor(player.sosScore)}`}>
                     {player.sosScore}
                   </span>
                 )}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.total_points.toFixed(2)}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.avg_points.toFixed(2)}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`text-sm font-semibold ${getTierColor(player.tier)}`}>
+              <td className="px-6 py-4 whitespace-nowrap text-center">
+                <span className={`text-xs font-semibold ${getTierColor(player.tier)}`}>
                   {player.tier}
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`text-sm font-semibold ${getConsistencyColor(player.consistency_score)}`}>
+              <td className="px-6 py-4 whitespace-nowrap text-center">
+                <span className={`text-xs font-semibold ${getConsistencyColor(player.consistency_score)}`}>
                   {(player.consistency_score * 100).toFixed(0)}%
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className={`text-sm font-semibold ${getBoomBustColor(player.boom_rate, player.bust_rate)}`}>
+              <td className="px-6 py-4 whitespace-nowrap text-center">
+                <span className={`text-xs font-semibold ${getBoomBustColor(player.boom_rate, player.bust_rate)}`}>
                   {player.boom_rate.toFixed(0)}%/{player.bust_rate.toFixed(0)}%
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
-                <span className="text-sm">
+              <td className="px-6 py-4 whitespace-nowrap text-center">
+                <span className="text-xs">
                   {getTrendIcon(player.trend)}
                 </span>
               </td>

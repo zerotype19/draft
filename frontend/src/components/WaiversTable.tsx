@@ -46,12 +46,12 @@ export default function WaiversTable({
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
-            <th className="px-4 py-3 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 font-mono">Rank</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Name</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Pos</th>
+            <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Team</th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('avg_points', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
@@ -60,7 +60,7 @@ export default function WaiversTable({
               </div>
             </th>
             <th 
-              className="px-4 py-3 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
+              className="px-6 py-4 text-right text-xs uppercase tracking-wide cursor-pointer group text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 font-mono"
               onClick={() => onSort('ros_projection', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               <div className="flex items-center justify-end">
@@ -68,8 +68,8 @@ export default function WaiversTable({
                 <SortIcon field="ros_projection" />
               </div>
             </th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Priority</th>
-            <th className="px-4 py-3 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Trend</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Priority</th>
+            <th className="px-6 py-4 text-center text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300">Trend</th>
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -79,34 +79,34 @@ export default function WaiversTable({
               className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => onPlayerClick?.(player)}
             >
-              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900 dark:text-white">
                 {index + 1}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-xs font-medium text-gray-900 dark:text-white">
                   {player.name}
                 </div>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPositionColor(player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-white">
                 {player.team}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.avg_points.toFixed(1)}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.ros_projection.toFixed(1)}
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center">
+              <td className="px-6 py-4 whitespace-nowrap text-center">
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(player.pickup_priority)}`}>
                   {player.pickup_priority}
                 </span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-center text-xs text-gray-900 dark:text-white">
                 {player.recent_trend}
               </td>
             </tr>

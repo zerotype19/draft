@@ -40,10 +40,10 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
   const minPoints = Math.min(...weeklyStats.map(s => s.points));
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{player.name}</h2>
             <div className="flex items-center gap-4 mt-2">
@@ -55,25 +55,25 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl font-bold"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl font-bold transition-colors"
           >
             ×
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 bg-white dark:bg-gray-800">
           {/* Season Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="text-sm text-gray-600 dark:text-gray-400">Total Points</div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{player.total_points.toFixed(1)}</div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="text-sm text-gray-600 dark:text-gray-400">Games Played</div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{player.games_played}</div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="text-sm text-gray-600 dark:text-gray-400">Avg Points</div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{player.avg_points.toFixed(1)}</div>
             </div>
@@ -82,7 +82,7 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
           {/* Weekly Performance Chart */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weekly Performance</h3>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
               <div className="flex items-end justify-between h-32 gap-1">
                 {weeklyStats.map((stat) => {
                   const height = ((stat.points - minPoints) / (maxPoints - minPoints)) * 100;
@@ -112,7 +112,7 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
 
           {/* Performance Analysis */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Best Week</h4>
               <div className="text-2xl font-bold text-green-600">
                 {Math.max(...weeklyStats.map(s => s.points)).toFixed(1)} pts
@@ -121,7 +121,7 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
                 Week {weeklyStats.find(s => s.points === Math.max(...weeklyStats.map(s => s.points)))?.week}
               </div>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Worst Week</h4>
               <div className="text-2xl font-bold text-red-600">
                 {Math.min(...weeklyStats.map(s => s.points)).toFixed(1)} pts
@@ -134,7 +134,7 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end p-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
