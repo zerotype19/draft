@@ -3,7 +3,7 @@ import PlayerTable from "../components/PlayerTable";
 import { getRankings } from "../lib/api";
 import type { Player } from "../lib/api";
 
-// Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment
+// Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
 export default function DraftAssistant() {
   const [season, setSeason] = useState(2024);
   const [position, setPosition] = useState("");
@@ -17,6 +17,13 @@ export default function DraftAssistant() {
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
   const [totalPlayers, setTotalPlayers] = useState(0);
+
+  // Theme toggle handler with console logging
+  const toggleTheme = () => {
+    const newMode = !darkMode;
+    console.log('Theme toggle clicked! Current:', darkMode, 'New:', newMode);
+    setDarkMode(newMode);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -66,16 +73,21 @@ export default function DraftAssistant() {
         {/* Header with Theme Toggle */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Draft Assistant</h1>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              darkMode 
-                ? 'bg-gray-800 text-white hover:bg-gray-700' 
-                : 'bg-white text-gray-900 hover:bg-gray-100 shadow-sm'
-            }`}
-          >
-            {darkMode ? '☀️ Light' : '🌙 Dark'}
-          </button>
+          <div className="flex items-center gap-4">
+            <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              {darkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            </span>
+            <button
+              onClick={toggleTheme}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-600' 
+                  : 'bg-white text-gray-900 hover:bg-gray-100 shadow-sm border border-gray-300'
+              }`}
+            >
+              {darkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
+            </button>
+          </div>
         </div>
 
         {/* Modern Toolbar */}
