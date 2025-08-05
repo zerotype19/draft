@@ -1,8 +1,7 @@
-import { useState } from "react";
-import type { Player } from "../lib/api";
+import React from 'react';
+import { Player } from '../lib/api';
 
 type SortField = 'name' | 'position' | 'team' | 'total_points' | 'games_played' | 'avg_points';
-type SortDirection = 'asc' | 'desc';
 
 interface PlayerTableProps {
   players: Player[];
@@ -43,17 +42,19 @@ export default function PlayerTable({
   };
 
   const sortedPlayers = [...players].sort((a, b) => {
-    let aValue: any = a[sortColumn];
-    let bValue: any = b[sortColumn];
+    let aValue: any = (a as any)[sortColumn];
+    let bValue: any = (b as any)[sortColumn];
     
     if (sortColumn === 'name' || sortColumn === 'position' || sortColumn === 'team') {
       aValue = String(aValue || '').toLowerCase();
       bValue = String(bValue || '').toLowerCase();
     }
     
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
+    if (sortDirection === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
   });
 
   const SortIcon = ({ field }: { field: SortField }) => {

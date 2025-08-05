@@ -32,8 +32,9 @@ export default function DraftAssistant() {
   const [sortColumn, setSortColumn] = useState(() => {
     return localStorage.getItem('draft-sort-column') || 'total_points';
   });
-  const [sortDirection, setSortDirection] = useState(() => {
-    return localStorage.getItem('draft-sort-direction') || 'desc';
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(() => {
+    const saved = localStorage.getItem('draft-sort-direction');
+    return (saved === 'asc' || saved === 'desc') ? saved : 'desc';
   });
 
   // Theme toggle handler with console logging
