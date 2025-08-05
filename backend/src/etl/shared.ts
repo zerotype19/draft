@@ -39,6 +39,18 @@ export async function importSeason(env: Env, season: number, url: string, week?:
       continue;
     }
 
+    // Debug logging for first few rows
+    if (processedRows < 5) {
+      console.log('Sample row:', {
+        player_id: row.player_id,
+        player_name: row.player_name,
+        position: row.position,
+        team: row.team,
+        recent_team: row.recent_team,
+        posteam: row.posteam
+      });
+    }
+
     // Validate required fields
     if (!row.player_id || !row.player_name) {
       console.warn(`Skipping row ${processedRows + skippedRows + 1} for season ${season}: missing player_id or player_name`);
@@ -47,6 +59,9 @@ export async function importSeason(env: Env, season: number, url: string, week?:
     }
 
     try {
+      // Determine team abbreviation from multiple possible fields
+      const teamAbbrev = row.team?.trim() || row.recent_team?.trim() || row.posteam?.trim() || 'FA';
+      
       // Insert player if not exists
       await env.DB.prepare(
         `INSERT OR IGNORE INTO players (player_id, name, position, team) VALUES (?, ?, ?, ?)`
@@ -54,7 +69,7 @@ export async function importSeason(env: Env, season: number, url: string, week?:
         row.player_id,
         row.player_name,
         row.position || null,
-        row.team || 'FA'
+        teamAbbrev
       ).run();
 
       // Add stat row with null/undefined handling
