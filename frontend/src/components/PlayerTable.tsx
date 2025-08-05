@@ -9,19 +9,19 @@ interface PlayerTableProps {
   selectedPosition?: string;
 }
 
-// Position badge styling function
+// Position badge styling function with modern colors
 function positionBadge(pos: string, isSelected: boolean = false) {
   const colors: Record<string, string> = {
-    QB: "bg-blue-500 text-white",
-    RB: "bg-green-500 text-white",
-    WR: "bg-purple-500 text-white",
-    TE: "bg-yellow-500 text-black",
-    K: "bg-orange-500 text-white",
-    DEF: "bg-gray-700 text-white"
+    QB: "bg-blue-500/80 text-white",
+    RB: "bg-green-500/80 text-white",
+    WR: "bg-purple-500/80 text-white",
+    TE: "bg-yellow-500/80 text-black",
+    K: "bg-orange-500/80 text-white",
+    DEF: "bg-gray-600/80 text-white"
   };
   
-  const baseColor = colors[pos] || "bg-gray-300 text-black";
-  return isSelected ? baseColor.replace('bg-', 'bg-').replace('500', '600').replace('700', '800') : baseColor;
+  const baseColor = colors[pos] || "bg-gray-400/80 text-black";
+  return isSelected ? baseColor.replace('/80', '/90') : baseColor;
 }
 
 export default function PlayerTable({ players, selectedPosition }: PlayerTableProps) {
@@ -52,68 +52,73 @@ export default function PlayerTable({ players, selectedPosition }: PlayerTablePr
   });
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return null;
-    return <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
+    if (sortField !== field) return <span className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">↕</span>;
+    return <span className="ml-1 text-blue-400">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
   };
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse border border-gray-300 text-sm">
-        <thead className="sticky top-0 bg-gray-100 z-10">
+      <table className="min-w-full divide-y divide-gray-700 text-sm">
+        <thead className="sticky top-0 bg-gray-900 z-10">
           <tr>
-            <th className="border p-2 text-left">Rank</th>
+            <th className="px-4 py-3 text-left font-semibold text-gray-300">Rank</th>
             <th 
-              className="border p-2 text-left cursor-pointer hover:bg-gray-200"
+              className="px-4 py-3 text-left font-semibold text-gray-300 cursor-pointer hover:text-white group"
               onClick={() => handleSort('name')}
             >
               Name<SortIcon field="name" />
             </th>
             <th 
-              className="border p-2 text-left cursor-pointer hover:bg-gray-200"
+              className="px-4 py-3 text-left font-semibold text-gray-300 cursor-pointer hover:text-white group"
               onClick={() => handleSort('position')}
             >
               Pos<SortIcon field="position" />
             </th>
             <th 
-              className="border p-2 text-left cursor-pointer hover:bg-gray-200"
+              className="px-4 py-3 text-left font-semibold text-gray-300 cursor-pointer hover:text-white group"
               onClick={() => handleSort('team')}
             >
               Team<SortIcon field="team" />
             </th>
             <th 
-              className="border p-2 text-right cursor-pointer hover:bg-gray-200"
+              className="px-4 py-3 text-right font-semibold text-gray-300 cursor-pointer hover:text-white group"
               onClick={() => handleSort('total_points')}
             >
               Points<SortIcon field="total_points" />
             </th>
             <th 
-              className="border p-2 text-right cursor-pointer hover:bg-gray-200"
+              className="px-4 py-3 text-right font-semibold text-gray-300 cursor-pointer hover:text-white group"
               onClick={() => handleSort('games_played')}
             >
               Games<SortIcon field="games_played" />
             </th>
             <th 
-              className="border p-2 text-right cursor-pointer hover:bg-gray-200"
+              className="px-4 py-3 text-right font-semibold text-gray-300 cursor-pointer hover:text-white group"
               onClick={() => handleSort('avg_points')}
             >
               Avg<SortIcon field="avg_points" />
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-700">
           {sortedPlayers.map((player, i) => (
-            <tr key={player.name + i} className={`hover:bg-gray-50 ${i < 5 ? "bg-yellow-50" : ""}`}>
-              <td className="border p-2">{i + 1}</td>
-              <td className="border p-2 font-medium">{player.name}</td>
-              <td className="border p-2">
-                <span className={`px-2 py-1 rounded text-xs ${positionBadge(player.position, selectedPosition === player.position)}`}>
+            <tr 
+              key={player.name + i} 
+              className={`hover:bg-gray-800/50 transition-colors ${
+                i < 5 ? "bg-gradient-to-r from-yellow-600/20 to-transparent" : ""
+              } ${i % 2 === 0 ? "bg-gray-800" : "bg-gray-900"}`}
+            >
+              <td className="px-4 py-2 text-gray-300">{i + 1}</td>
+              <td className="px-4 py-2 font-medium text-white">{player.name}</td>
+              <td className="px-4 py-2">
+                <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="border p-2">{player.team || '-'}</td>
-              <td className="border p-2 text-right font-mono">{player.total_points.toFixed(2)}</td>
-              <td className="border p-2 text-right">{player.games_played}</td>
-              <td className="border p-2 text-right font-mono">{player.avg_points.toFixed(2)}</td>
+              <td className="px-4 py-2 text-gray-300">{player.team}</td>
+              <td className="px-4 py-2 text-right font-mono text-white">{player.total_points.toFixed(2)}</td>
+              <td className="px-4 py-2 text-right text-gray-300">{player.games_played}</td>
+              <td className="px-4 py-2 text-right font-mono text-white">{player.avg_points.toFixed(2)}</td>
             </tr>
           ))}
         </tbody>

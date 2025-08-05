@@ -29,7 +29,7 @@ export async function getRankings(env: Env, season?: number, week?: number, posi
 
   // Build the main query for results
   let query = `
-    SELECT p.name, p.position, p.team,
+    SELECT p.name, p.position, COALESCE(p.team, 'FA') as team,
            SUM(s.total_points) as total_points,
            COUNT(DISTINCT s.week) as games_played,
            CASE 

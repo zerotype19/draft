@@ -54,7 +54,7 @@ export async function importSeason(env: Env, season: number, url: string, week?:
         row.player_id,
         row.player_name,
         row.position || null,
-        row.team || null
+        row.team || 'FA'
       ).run();
 
       // Add stat row with null/undefined handling
