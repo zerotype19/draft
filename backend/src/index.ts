@@ -14,8 +14,22 @@ export default {
 
     if (url.pathname === "/api/import/2023") {
       try {
-        await import2023(env);
-        return new Response("2023 import complete");
+        const weekParam = url.searchParams.get("week");
+        if (!weekParam) {
+          return new Response(
+            JSON.stringify({ 
+              error: "Missing ?week parameter. Use ?week=1-18 for weekly imports." 
+            }), 
+            { 
+              status: 400, 
+              headers: { "Content-Type": "application/json" } 
+            }
+          );
+        }
+        
+        const week = Number(weekParam);
+        await import2023(env, week);
+        return new Response(`2023 week ${week} import complete`);
       } catch (error) {
         console.error("Import 2023 error:", error);
         return new Response(`Import failed: ${error}`, { status: 500 });
@@ -23,8 +37,22 @@ export default {
     }
     if (url.pathname === "/api/import/2024") {
       try {
-        await import2024(env);
-        return new Response("2024 import complete");
+        const weekParam = url.searchParams.get("week");
+        if (!weekParam) {
+          return new Response(
+            JSON.stringify({ 
+              error: "Missing ?week parameter. Use ?week=1-18 for weekly imports." 
+            }), 
+            { 
+              status: 400, 
+              headers: { "Content-Type": "application/json" } 
+            }
+          );
+        }
+        
+        const week = Number(weekParam);
+        await import2024(env, week);
+        return new Response(`2024 week ${week} import complete`);
       } catch (error) {
         console.error("Import 2024 error:", error);
         return new Response(`Import failed: ${error}`, { status: 500 });

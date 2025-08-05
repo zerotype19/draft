@@ -1,9 +1,21 @@
-import { Env } from "../db";
+import { Env } from "./db";
 import { gunzipSync } from "fflate";
 import Papa from "papaparse";
 
-export async function importSeason(env: Env, season: number, url: string) {
-  console.log(`Starting import for ${season}`);
+// Configurable week range for NFL seasons
+const NFL_WEEK_RANGE = { min: 1, max: 18 };
+
+export async function importSeason(env: Env, season: number, url: string, week?: number) {
+  console.log(`Starting import for ${season}${week ? ` week ${week}` : ''}`);
+
+  // Validate week parameter if provided
+  if (week !== undefined) {
+    if (week < NFL_WEEK_RANGE.min || week > NFL_WEEK_RANGE.max) {
+      throw new Error(`Week must be between ${NFL_WEEK_RANGE.min} and ${NFL_WEEK_RANGE.max}`);
+    }
+  } else {
+    throw new Error(`Missing week parameter. Use ?week=1-18 for weekly imports.`);
+  }
 
   // Fetch the .gz file
   const res = await fetch(url);
@@ -22,6 +34,11 @@ export async function importSeason(env: Env, season: number, url: string) {
   let skippedRows = 0;
 
   for (const row of parsed.data as any[]) {
+    // Filter by week if specified
+    if (week !== undefined && row.week != week) {
+      continue;
+    }
+
     // Validate required fields
     if (!row.player_id || !row.player_name) {
       console.warn(`Skipping row ${processedRows + skippedRows + 1} for season ${season}: missing player_id or player_name`);
@@ -43,7 +60,7 @@ export async function importSeason(env: Env, season: number, url: string) {
       // Add stat row with null/undefined handling
       batch.push([
         season,
-        row.week || 0,
+        row.week,
         row.player_id,
         row.passing_yards || 0,
         row.passing_tds || 0,
@@ -79,7 +96,11 @@ export async function importSeason(env: Env, season: number, url: string) {
     await insertBatch(env, batch);
   }
 
-  console.log(`Import for ${season} complete. Processed: ${processedRows}, Skipped: ${skippedRows}`);
+  if (processedRows === 0) {
+    console.log(`No rows found for week ${week} (season ${season})`);
+  } else {
+    console.log(`Imported ${processedRows} rows for week ${week} (season ${season})`);
+  }
 }
 
 async function insertBatch(env: Env, batch: any[]) {
