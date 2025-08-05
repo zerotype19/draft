@@ -1,0 +1,8 @@
+name = "draft-api"
+main = "src/index.ts"
+compatibility_date = "2025-08-05"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "draft-db"
+database_id = "9eb7efca-2e7d-46e3-b8de-16f7cc02f2bd" 
