@@ -6,42 +6,47 @@ type SortDirection = 'asc' | 'desc';
 
 interface PlayerTableProps {
   players: Player[];
-  selectedPosition?: string;
+  selectedPosition: string;
+  onSort: (column: string, direction: 'asc' | 'desc') => void;
+  sortColumn: string;
+  sortDirection: 'asc' | 'desc';
 }
 
-// Position badge styling function with professional colors
+// Position badge styling function with professional colors and opacity
 function positionBadge(pos: string, isSelected: boolean = false) {
   const colors: Record<string, string> = {
-    QB: "bg-blue-600 text-white",
-    RB: "bg-green-600 text-white",
-    WR: "bg-orange-500 text-white",
-    TE: "bg-purple-600 text-white",
-    K: "bg-pink-500 text-white",
-    DEF: "bg-gray-700 text-white"
+    QB: "bg-blue-500/80 text-white",
+    RB: "bg-green-500/80 text-white",
+    WR: "bg-orange-500/80 text-white",
+    TE: "bg-purple-500/80 text-white",
+    K: "bg-pink-500/80 text-white",
+    DEF: "bg-gray-500/80 text-white"
   };
   
-  const baseColor = colors[pos] || "bg-gray-500 text-white";
-  return isSelected ? baseColor.replace('600', '700').replace('500', '600') : baseColor;
+  const baseColor = colors[pos] || "bg-gray-500/80 text-white";
+  return isSelected ? baseColor.replace('/80', '/90') : baseColor;
 }
 
-export default function PlayerTable({ players, selectedPosition }: PlayerTableProps) {
-  const [sortField, setSortField] = useState<SortField>('total_points');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-
+export default function PlayerTable({ 
+  players, 
+  selectedPosition, 
+  onSort,
+  sortColumn,
+  sortDirection
+}: PlayerTableProps) {
   const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    if (sortColumn === field) {
+      onSort(field, sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortField(field);
-      setSortDirection('desc');
+      onSort(field, 'desc');
     }
   };
 
   const sortedPlayers = [...players].sort((a, b) => {
-    let aValue: any = a[sortField];
-    let bValue: any = b[sortField];
+    let aValue: any = a[sortColumn];
+    let bValue: any = b[sortColumn];
     
-    if (sortField === 'name' || sortField === 'position' || sortField === 'team') {
+    if (sortColumn === 'name' || sortColumn === 'position' || sortColumn === 'team') {
       aValue = String(aValue || '').toLowerCase();
       bValue = String(bValue || '').toLowerCase();
     }
@@ -52,48 +57,48 @@ export default function PlayerTable({ players, selectedPosition }: PlayerTablePr
   });
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <span className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span>;
+    if (sortColumn !== field) return <span className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">↕</span>;
     return <span className="ml-1 text-blue-500">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
   };
 
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-        <thead className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <thead className="sticky top-0 z-10 bg-gray-900 dark:bg-gray-900 border-b border-gray-700 dark:border-gray-700">
           <tr>
-            <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 w-16">Rank</th>
+            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300 w-16">Rank</th>
             <th 
-              className="px-4 py-3 text-left font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white"
               onClick={() => handleSort('name')}
             >
               Name<SortIcon field="name" />
             </th>
             <th 
-              className="px-4 py-3 text-left font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white w-20"
+              className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-20"
               onClick={() => handleSort('position')}
             >
               Pos<SortIcon field="position" />
             </th>
             <th 
-              className="px-4 py-3 text-left font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white w-16"
+              className="px-4 py-3 text-left text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-16"
               onClick={() => handleSort('team')}
             >
               Team<SortIcon field="team" />
             </th>
             <th 
-              className="px-4 py-3 text-right font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              className="px-4 py-3 text-right text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white"
               onClick={() => handleSort('total_points')}
             >
               Points<SortIcon field="total_points" />
             </th>
             <th 
-              className="px-4 py-3 text-right font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white w-20"
+              className="px-4 py-3 text-right text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-20"
               onClick={() => handleSort('games_played')}
             >
               Games<SortIcon field="games_played" />
             </th>
             <th 
-              className="px-4 py-3 text-right font-semibold cursor-pointer group text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white w-20"
+              className="px-4 py-3 text-right text-sm font-semibold cursor-pointer group text-gray-300 hover:text-white w-20"
               onClick={() => handleSort('avg_points')}
             >
               Avg<SortIcon field="avg_points" />
@@ -104,8 +109,8 @@ export default function PlayerTable({ players, selectedPosition }: PlayerTablePr
           {sortedPlayers.map((player, index) => (
             <tr 
               key={player.name + index}
-              className={`hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${
-                index < 5 ? "bg-gradient-to-r from-yellow-100/50 to-transparent dark:from-yellow-900/20" : ""
+              className={`hover:bg-gray-800/50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer ${
+                index < 3 && selectedPosition === player.position ? "bg-gradient-to-r from-yellow-600/20 to-transparent" : ""
               } ${
                 index % 2 === 0 ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900"
               }`}

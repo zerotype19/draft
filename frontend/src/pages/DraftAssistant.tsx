@@ -27,6 +27,14 @@ export default function DraftAssistant() {
   const [limit] = useState(50);
   const [offset, setOffset] = useState(0);
   const [totalPlayers, setTotalPlayers] = useState(0);
+  
+  // Sort state with localStorage persistence
+  const [sortColumn, setSortColumn] = useState(() => {
+    return localStorage.getItem('draft-sort-column') || 'total_points';
+  });
+  const [sortDirection, setSortDirection] = useState(() => {
+    return localStorage.getItem('draft-sort-direction') || 'desc';
+  });
 
   // Theme toggle handler with console logging
   const toggleTheme = () => {
@@ -44,10 +52,12 @@ export default function DraftAssistant() {
   };
 
   // Save filters to localStorage
-  const saveFilters = (newSeason: number, newPosition: string, newSearch: string) => {
+  const saveFilters = (newSeason: number, newPosition: string, newSearch: string, newSortColumn?: string, newSortDirection?: string) => {
     localStorage.setItem('draft-season', newSeason.toString());
     localStorage.setItem('draft-position', newPosition);
     localStorage.setItem('draft-search', newSearch);
+    if (newSortColumn) localStorage.setItem('draft-sort-column', newSortColumn);
+    if (newSortDirection) localStorage.setItem('draft-sort-direction', newSortDirection);
   };
 
   useEffect(() => {
@@ -78,6 +88,12 @@ export default function DraftAssistant() {
   const handleSearchChange = (newSearch: string) => {
     setSearchTerm(newSearch);
     saveFilters(season, position, newSearch);
+  };
+
+  const handleSort = (column: string, direction: 'asc' | 'desc') => {
+    setSortColumn(column);
+    setSortDirection(direction);
+    saveFilters(season, position, searchTerm, column, direction);
   };
 
   // Handle pagination
@@ -241,8 +257,14 @@ export default function DraftAssistant() {
         )}
 
         {!loading && !error && filteredPlayers.length > 0 && (
-          <div className="rounded-xl shadow-lg overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-            <PlayerTable players={filteredPlayers} selectedPosition={position} />
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+            <PlayerTable 
+              players={filteredPlayers} 
+              selectedPosition={position}
+              onSort={handleSort}
+              sortColumn={sortColumn}
+              sortDirection={sortDirection}
+            />
           </div>
         )}
       </div>
