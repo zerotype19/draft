@@ -1,84 +1,85 @@
 import { Env } from "../db";
-import Papa from "papaparse";
 import { gunzipSync } from "fflate";
+import Papa from "papaparse";
 
-/**
- * Downloads, parses, and inserts stats from NFLverse CSV.gz file
- */
 export async function importSeason(env: Env, season: number, url: string) {
-  console.log(`Starting import for ${season}...`);
+  console.log(`Starting import for ${season}`);
 
+  // Fetch the .gz file
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch CSV: ${res.statusText}`);
+  if (!res.ok) throw new Error(`Failed to fetch CSV for ${season}: ${res.status}`);
 
-  const compressedData = await res.arrayBuffer();
-  const decompressedData = gunzipSync(new Uint8Array(compressedData));
-  const text = new TextDecoder().decode(decompressedData);
+  // Decompress
+  const arrayBuffer = await res.arrayBuffer();
+  const decompressed = gunzipSync(new Uint8Array(arrayBuffer));
+  const csvText = new TextDecoder().decode(decompressed);
+
+  // Parse CSV
+  const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
 
   let batch: any[] = [];
-  let lineCount = 0;
+  let processedRows = 0;
+  let skippedRows = 0;
 
-  return new Promise<void>((resolve, reject) => {
-    Papa.parse(text, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      step: async (row: any) => {
-        try {
-          const data = row.data;
-          lineCount++;
+  for (const row of parsed.data as any[]) {
+    // Validate required fields
+    if (!row.player_id || !row.player_name) {
+      console.warn(`Skipping row ${processedRows + skippedRows + 1} for season ${season}: missing player_id or player_name`);
+      skippedRows++;
+      continue;
+    }
 
-          // Insert player if not exists
-          await env.DB.prepare(
-            `INSERT OR IGNORE INTO players (player_id, name, position, team) VALUES (?, ?, ?, ?)`
-          )
-            .bind(data.player_id, data.player_name, data.position, data.recent_team)
-            .run();
+    try {
+      // Insert player if not exists
+      await env.DB.prepare(
+        `INSERT OR IGNORE INTO players (player_id, name, position, team) VALUES (?, ?, ?, ?)`
+      ).bind(
+        row.player_id,
+        row.player_name,
+        row.position || null,
+        row.recent_team || null
+      ).run();
 
-          // Add to batch
-          batch.push([
-            season,
-            data.week,
-            data.player_id,
-            data.passing_yards || 0,
-            data.passing_tds || 0,
-            data.interceptions || 0,
-            data.rushing_yards || 0,
-            data.rushing_tds || 0,
-            data.receptions || 0,
-            data.receiving_yards || 0,
-            data.receiving_tds || 0,
-            data.fumbles_lost || 0,
-            data.two_point_conversions || 0
-          ]);
+      // Add stat row with null/undefined handling
+      batch.push([
+        season,
+        row.week || 0,
+        row.player_id,
+        row.passing_yards || 0,
+        row.passing_tds || 0,
+        row.interceptions || 0,
+        row.rushing_yards || 0,
+        row.rushing_tds || 0,
+        row.receptions || 0,
+        row.receiving_yards || 0,
+        row.receiving_tds || 0,
+        row.fumbles_lost || 0,
+        row.two_point_conversions || 0
+      ]);
 
-          if (batch.length >= 500) {
-            await insertBatch(env, batch);
-            batch = [];
-          }
-        } catch (error) {
-          console.error(`Error parsing row ${lineCount} for season ${season}:`, error);
-          reject(error);
-        }
-      },
-      complete: async () => {
-        try {
-          if (batch.length) {
-            await insertBatch(env, batch);
-          }
-          console.log(`Imported ${lineCount} rows for ${season}`);
-          resolve();
-        } catch (error) {
-          console.error(`Error completing import for season ${season}:`, error);
-          reject(error);
-        }
-      },
-      error: (err: any) => {
-        console.error(`CSV parse error for season ${season}:`, err);
-        reject(err);
+      processedRows++;
+
+      // Batch insert every 500 rows
+      if (batch.length >= 500) {
+        await insertBatch(env, batch);
+        batch = [];
       }
-    });
-  });
+    } catch (error) {
+      console.error(`Error processing row ${processedRows + skippedRows + 1} for season ${season}:`, {
+        season,
+        week: row.week,
+        player_id: row.player_id,
+        error: error.message
+      });
+      skippedRows++;
+    }
+  }
+
+  if (batch.length) {
+    await insertBatch(env, batch);
+  }
+
+  console.log(`Import for ${season} complete. Processed: ${processedRows}, Skipped: ${skippedRows}`);
 }
 
 async function insertBatch(env: Env, batch: any[]) {
