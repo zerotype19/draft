@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getSeasonStrategy, analyzeTrade } from '../lib/api';
-import type { PlayoffIssue, TradeAnalysis } from '../lib/api';
+import { getSeasonStrategy } from '../lib/api';
+import type { PlayoffIssue } from '../lib/api';
 import { getLeagueSettings, getRoster, getStarters, formatScoringForAPI } from '../lib/localStorage';
 
 interface WeekProjection {

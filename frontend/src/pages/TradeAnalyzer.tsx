@@ -23,7 +23,6 @@ export default function TradeAnalyzer() {
   }, []);
 
   const loadAvailablePlayers = () => {
-    const roster = getRoster();
     // In a real implementation, this would fetch all available players
     // For now, we'll use mock data
     setAvailablePlayers([
