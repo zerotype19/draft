@@ -11,7 +11,7 @@ import Simulator from './Simulator';
 import Alerts from './Alerts';
 import SeasonPlanner from './SeasonPlanner';
 import TradeAnalyzer from './TradeAnalyzer';
-import { hasLeagueSettings, getLeagueSettings, getRoster, formatScoringForAPI } from '../lib/localStorage';
+import { hasLeagueSettings } from '../lib/localStorage';
 
 // Professional Fantasy Draft Assistant with Modern UI/UX Overhaul
 export default function DraftAssistant() {
@@ -273,6 +273,23 @@ export default function DraftAssistant() {
     { id: 'league-setup', label: 'League Setup' }
   ];
 
+  // Helper function to convert different player types to Player for modal
+  const convertToPlayerForModal = (player: any): Player => {
+    if ('total_points' in player && 'games_played' in player && 'avg_points' in player) {
+      return player as Player;
+    }
+    
+    // For draft players, recommendations, and waivers, create a Player object
+    return {
+      name: player.name,
+      position: player.position,
+      team: player.team,
+      total_points: player.total_points || player.avg_points * 18 || 0,
+      games_played: player.games_played || 18,
+      avg_points: player.avg_points || 0
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -481,7 +498,7 @@ export default function DraftAssistant() {
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
-                    onPlayerClick={handlePlayerClick}
+                    onPlayerClick={(player) => handlePlayerClick(convertToPlayerForModal(player))}
                   />
                 )}
                 
@@ -491,7 +508,7 @@ export default function DraftAssistant() {
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
-                    onPlayerClick={handlePlayerClick}
+                    onPlayerClick={(player) => handlePlayerClick(convertToPlayerForModal(player))}
                   />
                 )}
                 
@@ -501,7 +518,7 @@ export default function DraftAssistant() {
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
-                    onPlayerClick={handlePlayerClick}
+                    onPlayerClick={(player) => handlePlayerClick(convertToPlayerForModal(player))}
                   />
                 )}
                 
@@ -509,7 +526,7 @@ export default function DraftAssistant() {
                 {activeTab === 'season-planner' && <SeasonPlanner />}
                 {activeTab === 'trade-analyzer' && <TradeAnalyzer />}
                 {activeTab === 'simulator' && <Simulator />}
-                {activeTab === 'league-setup' && <LeagueSetup />}
+                {activeTab === 'league-setup' && <LeagueSetup onComplete={() => setActiveTab('rankings')} />}
               </div>
 
               {/* Enhanced Pagination */}
