@@ -22,7 +22,14 @@ export default function DraftAssistant() {
   const toggleTheme = () => {
     const newMode = !darkMode;
     console.log('Theme toggle clicked! Current:', darkMode, 'New:', newMode);
+    console.log('Button clicked at:', new Date().toISOString());
     setDarkMode(newMode);
+    
+    // Force a re-render to ensure the change is applied
+    setTimeout(() => {
+      console.log('Theme state after toggle:', newMode);
+      console.log('Dark class should be:', newMode ? 'dark' : '');
+    }, 100);
   };
 
   useEffect(() => {
@@ -83,6 +90,9 @@ export default function DraftAssistant() {
             >
               {darkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark'}
             </button>
+            <span className={`text-xs px-2 py-1 rounded ${darkMode ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700'}`}>
+              {darkMode ? 'DARK' : 'LIGHT'}
+            </span>
           </div>
         </div>
 
