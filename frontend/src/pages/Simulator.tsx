@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getRankings, getWaivers, simulateRoster } from '../lib/api';
-import type { Player, WaiverPlayer, SimulationMove, PlayerImpact, SimulationResponse } from '../lib/api';
+import type { Player, WaiverPlayer, SimulationMove, SimulationResponse } from '../lib/api';
 import { getLeagueSettings, getRoster, saveRoster } from '../lib/localStorage';
 import type { LeagueSettings } from '../lib/localStorage';
 
@@ -24,7 +24,6 @@ export default function Simulator() {
   const [isSearching, setIsSearching] = useState(false);
   const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(null);
   const [scenarios, setScenarios] = useState<SimulationScenario[]>([]);
-  const [currentScenario, setCurrentScenario] = useState<SimulationScenario | null>(null);
   const [pendingMoves, setPendingMoves] = useState<SimulationMove[]>([]);
   const [scenarioName, setScenarioName] = useState('');
 
@@ -88,24 +87,20 @@ export default function Simulator() {
     setSearchResults([]);
   };
 
-  const removePlayerFromSimulation = (playerId: string) => {
+  const addWaiverPlayerToSimulation = (player: WaiverPlayer) => {
     const move: SimulationMove = {
-      action: 'remove',
-      player_id: playerId
+      action: 'add',
+      player_id: player.name, // Use name as player_id for waiver players
+      player_name: player.name,
+      target_slot: player.position
     };
     
     setPendingMoves([...pendingMoves, move]);
+    setPlayerSearch('');
+    setSearchResults([]);
   };
 
-  const swapPlayers = (player1Id: string, player2Id: string) => {
-    const move: SimulationMove = {
-      action: 'swap',
-      player_id: player1Id,
-      swap_with_player_id: player2Id
-    };
-    
-    setPendingMoves([...pendingMoves, move]);
-  };
+
 
   const runSimulation = async () => {
     if (pendingMoves.length === 0) return;
@@ -183,28 +178,7 @@ export default function Simulator() {
     return colors[position] || "bg-gray-500/80 text-white";
   };
 
-  const getInjuryStatusColor = (status?: string): string => {
-    if (!status) return '';
-    const colors: Record<string, string> = {
-      'Q': 'bg-yellow-500/80 text-white',
-      'O': 'bg-red-500/80 text-white',
-      'IR': 'bg-red-500/80 text-white',
-      'PUP': 'bg-orange-500/80 text-white',
-      'Doubtful': 'bg-orange-500/80 text-white',
-      'Probable': 'bg-green-500/80 text-white'
-    };
-    return colors[status] || '';
-  };
 
-  const getSOSColor = (score?: string): string => {
-    if (!score) return '';
-    const colors: Record<string, string> = {
-      'Easy': 'bg-green-500/80 text-white',
-      'Medium': 'bg-gray-500/80 text-white',
-      'Hard': 'bg-red-500/80 text-white'
-    };
-    return colors[score] || '';
-  };
 
   const getTrendIcon = (trend?: string): string => {
     if (!trend) return '';
@@ -287,7 +261,7 @@ export default function Simulator() {
                     {waiverCandidates.slice(0, 10).map((player) => (
                       <button
                         key={player.name}
-                        onClick={() => addPlayerToSimulation(player)}
+                        onClick={() => addWaiverPlayerToSimulation(player)}
                         className="w-full px-4 py-2 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0"
                       >
                         <div className="font-medium text-white">{player.name}</div>
