@@ -6,6 +6,7 @@ import { getRankings } from "./rankings";
 import { getDraftRankings } from "./draft-rankings";
 import { getRecommendations } from "./recommendations";
 import { getWaivers } from "./waivers";
+import { simulateRoster } from "./simulator";
 import { corsHeaders } from "./cors";
 
 export default {
@@ -225,6 +226,39 @@ export default {
       } catch (error) {
         console.error("Waivers error:", error);
         return new Response(`Waivers failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/simulate" && req.method === "POST") {
+      try {
+        const body = await req.json();
+        const { mode, roster, moves, scoring, includeInjuries, rosterSlots } = body;
+
+        if (!mode || !roster || !moves) {
+          return new Response("Missing required parameters: mode, roster, moves", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        const simulation = await simulateRoster(env, {
+          mode,
+          roster,
+          moves,
+          scoring,
+          includeInjuries: includeInjuries !== false,
+          rosterSlots
+        });
+
+        return new Response(JSON.stringify(simulation), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Simulation error:", error);
+        return new Response(`Simulation failed: ${error}`, { 
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "text/plain" }
         });

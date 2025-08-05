@@ -7,6 +7,7 @@ export interface Player {
   total_points: number;
   games_played: number;
   avg_points: number;
+  player_id?: string;
 }
 
 export interface RankingsResponse {
@@ -83,6 +84,37 @@ export interface WaiversResponse {
   total_count: number;
   week: number;
   position: string;
+}
+
+export interface SimulationMove {
+  action: 'add' | 'remove' | 'swap';
+  player_id?: string;
+  player_name?: string;
+  target_slot?: string;
+  swap_with_player_id?: string;
+}
+
+export interface PlayerImpact {
+  player_id: string;
+  player_name: string;
+  position: string;
+  team: string;
+  projection: number;
+  change: number;
+  slot?: string;
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+}
+
+export interface SimulationResponse {
+  baselineProjection: number;
+  newProjection: number;
+  difference: number;
+  playerImpacts: PlayerImpact[];
+  slotWarnings?: string[];
+  optimalProjection?: number;
+  optimalLineup?: PlayerImpact[];
 }
 
 export async function getRankings(
@@ -171,6 +203,35 @@ export async function getWaivers(
   const response = await fetch(`${API_BASE}/waivers?${params}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch waivers: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function simulateRoster(
+  mode: 'draft' | 'lineup' | 'waiver',
+  roster: string[],
+  moves: SimulationMove[],
+  scoring?: string,
+  includeInjuries?: boolean,
+  rosterSlots?: any
+): Promise<SimulationResponse> {
+  const response = await fetch(`${API_BASE}/simulate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      mode,
+      roster,
+      moves,
+      scoring,
+      includeInjuries,
+      rosterSlots
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to simulate roster: ${response.statusText}`);
   }
   return response.json();
 } 

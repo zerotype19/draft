@@ -7,6 +7,7 @@ import DraftRankingsTable from '../components/DraftRankingsTable';
 import RecommendationsTable from '../components/RecommendationsTable';
 import WaiversTable from '../components/WaiversTable';
 import LeagueSetup from './LeagueSetup';
+import Simulator from './Simulator';
 import { hasLeagueSettings, getLeagueSettings, getRoster, formatScoringForAPI } from '../lib/localStorage';
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
@@ -56,13 +57,13 @@ export default function DraftAssistant() {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers' | 'league-setup'>('rankings');
+  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers' | 'simulator' | 'league-setup'>('rankings');
 
   const [week, setWeek] = useState(18);
 
   // Check if league settings exist and redirect if needed
   useEffect(() => {
-    if (!hasLeagueSettings() && (activeTab === 'draft' || activeTab === 'recommendations' || activeTab === 'waivers')) {
+    if (!hasLeagueSettings() && (activeTab === 'draft' || activeTab === 'recommendations' || activeTab === 'waivers' || activeTab === 'simulator')) {
       setActiveTab('league-setup');
     }
   }, [activeTab]);
@@ -323,6 +324,16 @@ export default function DraftAssistant() {
                 }`}
               >
                 Waivers
+              </button>
+              <button
+                onClick={() => setActiveTab('simulator')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'simulator'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Simulator
               </button>
               <button
                 onClick={() => setActiveTab('league-setup')}
@@ -601,6 +612,11 @@ export default function DraftAssistant() {
               No waiver recommendations found for Week {week}.
             </p>
           </div>
+        )}
+
+        {/* Simulator Tab */}
+        {activeTab === 'simulator' && (
+          <Simulator />
         )}
 
         {/* League Setup Tab */}
