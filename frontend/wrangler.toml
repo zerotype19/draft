@@ -1,9 +1,0 @@
-name = "draft-frontend"
-compatibility_date = "2025-08-05"
-
-[dev]
-port = 5173
-
-[[dev.proxy]]
-binding = "API"
-url = "https://draft-api.kevin-mcgovern.workers.dev" 
