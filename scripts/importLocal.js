@@ -38,8 +38,21 @@ async function importSeason(season, url) {
     // Generate SQL statements
     console.log(`Generating SQL file for ${season}...`);
     const insertStatements = [];
+    let lineCount = 0;
     
     for (const row of parsed.data) {
+      // Log first 10 rows for debugging team data
+      if (lineCount < 10) {
+        console.log(`Row ${lineCount + 1}:`, {
+          player_id: row.player_id,
+          player_name: row.player_name,
+          position: row.position,
+          team: row.team,
+          recent_team: row.recent_team,
+          posteam: row.posteam
+        });
+      }
+      
       // Validate required fields
       if (!row.player_id || !row.player_name) {
         console.warn(`Skipping row with missing player_id or player_name in ${season}`);
@@ -49,10 +62,20 @@ async function importSeason(season, url) {
       // Escape single quotes in player names
       const escapedName = row.player_name.replace(/'/g, "''");
       
+      // Improved team extraction logic
+      const teamAbbrev = 
+        row.recent_team?.trim() || 
+        row.team?.trim() || 
+        row.posteam?.trim() || 
+        'FA';
+      
+      // Validate team abbreviation (should be 2-3 letters)
+      const validTeam = /^[A-Z]{2,3}$/.test(teamAbbrev) ? teamAbbrev : 'FA';
+      
       // Players insert (IGNORE to avoid duplicates)
       insertStatements.push(
         `INSERT OR IGNORE INTO players (player_id, name, position, team)
-         VALUES ('${row.player_id}', '${escapedName}', '${row.position || ''}', '${row.recent_team || ''}');`
+         VALUES ('${row.player_id}', '${escapedName}', '${row.position || ''}', '${validTeam}');`
       );
 
       // Stats insert
@@ -60,6 +83,8 @@ async function importSeason(season, url) {
         `INSERT INTO stats_raw (season, week, player_id, passing_yards, passing_tds, interceptions, rushing_yards, rushing_tds, receptions, receiving_yards, receiving_tds, fumbles_lost, two_pt_conversions)
          VALUES (${season}, ${row.week || 0}, '${row.player_id}', ${row.passing_yards || 0}, ${row.passing_tds || 0}, ${row.interceptions || 0}, ${row.rushing_yards || 0}, ${row.rushing_tds || 0}, ${row.receptions || 0}, ${row.receiving_yards || 0}, ${row.receiving_tds || 0}, ${row.fumbles_lost || 0}, ${row.two_point_conversions || 0});`
       );
+      
+      lineCount++;
     }
     
     // Write SQL file
