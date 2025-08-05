@@ -13,7 +13,7 @@ interface DraftPlayer {
   adp?: number;
 }
 
-export async function getDraftRankings(env: Env, season?: number, position?: string, limit: number = 50, offset: number = 0) {
+export async function getDraftRankings(env: Env, season?: number, position?: string, limit: number = 50, offset: number = 0, scoring?: string) {
   // Get all weekly stats for the season to calculate advanced metrics
   let weeklyStatsQuery = `
     SELECT p.name, p.position, p.team, s.week, s.total_points

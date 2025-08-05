@@ -133,13 +133,15 @@ export default {
         const position = url.searchParams.get("position");
         const limit = url.searchParams.get("limit");
         const offset = url.searchParams.get("offset");
+        const scoring = url.searchParams.get("scoring");
 
         const rankings = await getDraftRankings(
           env,
           season ? Number(season) : undefined,
           position || undefined,
           limit ? Number(limit) : 50,
-          offset ? Number(offset) : 0
+          offset ? Number(offset) : 0,
+          scoring || undefined
         );
         return new Response(JSON.stringify(rankings), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -158,6 +160,8 @@ export default {
         const week = url.searchParams.get("week");
         const position = url.searchParams.get("position");
         const limit = url.searchParams.get("limit");
+        const scoring = url.searchParams.get("scoring");
+        const roster = url.searchParams.get("roster");
 
         if (!week) {
           return new Response("Week parameter is required", { 
@@ -170,7 +174,9 @@ export default {
           env,
           Number(week),
           position || undefined,
-          limit ? Number(limit) : 50
+          limit ? Number(limit) : 50,
+          scoring || undefined,
+          roster || undefined
         );
         return new Response(JSON.stringify(recommendations), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -189,6 +195,8 @@ export default {
         const week = url.searchParams.get("week");
         const position = url.searchParams.get("position");
         const limit = url.searchParams.get("limit");
+        const scoring = url.searchParams.get("scoring");
+        const roster = url.searchParams.get("roster");
 
         if (!week) {
           return new Response("Week parameter is required", { 
@@ -201,7 +209,9 @@ export default {
           env,
           Number(week),
           position || undefined,
-          limit ? Number(limit) : 50
+          limit ? Number(limit) : 50,
+          scoring || undefined,
+          roster || undefined
         );
         return new Response(JSON.stringify(waivers), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 

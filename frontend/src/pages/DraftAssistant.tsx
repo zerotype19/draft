@@ -6,6 +6,8 @@ import PlayerModal from '../components/PlayerModal';
 import DraftRankingsTable from '../components/DraftRankingsTable';
 import RecommendationsTable from '../components/RecommendationsTable';
 import WaiversTable from '../components/WaiversTable';
+import LeagueSetup from './LeagueSetup';
+import { hasLeagueSettings, getLeagueSettings, getRoster, formatScoringForAPI } from '../lib/localStorage';
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
 export default function DraftAssistant() {
@@ -54,8 +56,16 @@ export default function DraftAssistant() {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers'>('rankings');
+  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers' | 'league-setup'>('rankings');
+  const [showLeagueSetup, setShowLeagueSetup] = useState(false);
   const [week, setWeek] = useState(18);
+
+  // Check if league settings exist and redirect if needed
+  useEffect(() => {
+    if (!hasLeagueSettings() && (activeTab === 'draft' || activeTab === 'recommendations' || activeTab === 'waivers')) {
+      setActiveTab('league-setup');
+    }
+  }, [activeTab]);
 
   // Theme toggle handler with console logging
   const toggleTheme = () => {
@@ -98,7 +108,10 @@ export default function DraftAssistant() {
   // Fetch draft rankings data
   useEffect(() => {
     if (activeTab === 'draft') {
-      getDraftRankings(season, position, limit, offset)
+      const leagueSettings = getLeagueSettings();
+      const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
+      
+      getDraftRankings(season, position, limit, offset, scoring)
         .then((data) => {
           setDraftPlayers(data.results);
         })
@@ -109,7 +122,11 @@ export default function DraftAssistant() {
   // Fetch recommendations data
   useEffect(() => {
     if (activeTab === 'recommendations') {
-      getRecommendations(week, position, limit)
+      const leagueSettings = getLeagueSettings();
+      const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
+      const roster = getRoster().join(',');
+      
+      getRecommendations(week, position, limit, scoring, roster)
         .then((data) => {
           setRecommendations(data.results);
         })
@@ -120,7 +137,11 @@ export default function DraftAssistant() {
   // Fetch waivers data
   useEffect(() => {
     if (activeTab === 'waivers') {
-      getWaivers(week, position, limit)
+      const leagueSettings = getLeagueSettings();
+      const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
+      const roster = getRoster().join(',');
+      
+      getWaivers(week, position, limit, scoring, roster)
         .then((data) => {
           setWaivers(data.results);
         })
@@ -299,6 +320,16 @@ export default function DraftAssistant() {
                 }`}
               >
                 Waivers
+              </button>
+              <button
+                onClick={() => setActiveTab('league-setup')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'league-setup'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                League Setup
               </button>
             </nav>
           </div>
@@ -567,6 +598,11 @@ export default function DraftAssistant() {
               No waiver recommendations found for Week {week}.
             </p>
           </div>
+        )}
+
+        {/* League Setup Tab */}
+        {activeTab === 'league-setup' && (
+          <LeagueSetup onComplete={() => setActiveTab('rankings')} />
         )}
       </div>
 

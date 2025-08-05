@@ -11,7 +11,7 @@ interface WaiverPlayer {
   pickup_priority: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
-export async function getWaivers(env: Env, week: number, position?: string, limit: number = 50) {
+export async function getWaivers(env: Env, week: number, position?: string, limit: number = 50, scoring?: string, roster?: string) {
   // Get all stats for the season
   let query = `
     SELECT p.name, p.position, p.team, s.week, s.total_points
@@ -48,9 +48,17 @@ export async function getWaivers(env: Env, week: number, position?: string, limi
   
   const waiverPlayers: WaiverPlayer[] = [];
   
+  // Filter out rostered players if roster provided
+  const rosterPlayers = roster ? roster.split(',').map(name => name.trim()) : [];
+  
   for (const [_, player] of playerStats) {
     const points = player.points;
     if (points.length === 0) continue;
+    
+    // Skip if player is on roster (for waiver wire)
+    if (rosterPlayers.length > 0 && rosterPlayers.includes(player.name)) {
+      continue;
+    }
     
     const avgPoints = points.reduce((sum, p) => sum + p, 0) / points.length;
     

@@ -93,13 +93,17 @@ export async function getDraftRankings(
   season?: number,
   position?: string,
   limit: number = 50,
-  offset: number = 0
+  offset: number = 0,
+  scoring?: string,
+  roster?: string
 ): Promise<DraftRankingsResponse> {
   const params = new URLSearchParams();
   if (season) params.append('season', season.toString());
   if (position) params.append('position', position);
   params.append('limit', limit.toString());
   params.append('offset', offset.toString());
+  if (scoring) params.append('scoring', scoring);
+  if (roster) params.append('roster', roster);
 
   const response = await fetch(`${API_BASE}/draft-rankings?${params}`);
   if (!response.ok) {
@@ -111,12 +115,16 @@ export async function getDraftRankings(
 export async function getRecommendations(
   week: number,
   position?: string,
-  limit: number = 50
+  limit: number = 50,
+  scoring?: string,
+  roster?: string
 ): Promise<RecommendationsResponse> {
   const params = new URLSearchParams();
   params.append('week', week.toString());
   if (position) params.append('position', position);
   params.append('limit', limit.toString());
+  if (scoring) params.append('scoring', scoring);
+  if (roster) params.append('roster', roster);
 
   const response = await fetch(`${API_BASE}/recommendations?${params}`);
   if (!response.ok) {
@@ -128,12 +136,16 @@ export async function getRecommendations(
 export async function getWaivers(
   week: number,
   position?: string,
-  limit: number = 50
+  limit: number = 50,
+  scoring?: string,
+  roster?: string
 ): Promise<WaiversResponse> {
   const params = new URLSearchParams();
   params.append('week', week.toString());
   if (position) params.append('position', position);
   params.append('limit', limit.toString());
+  if (scoring) params.append('scoring', scoring);
+  if (roster) params.append('roster', roster);
 
   const response = await fetch(`${API_BASE}/waivers?${params}`);
   if (!response.ok) {

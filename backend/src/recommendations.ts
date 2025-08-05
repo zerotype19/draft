@@ -13,7 +13,7 @@ interface RecommendationPlayer {
   reason: string;
 }
 
-export async function getRecommendations(env: Env, week: number, position?: string, limit: number = 50) {
+export async function getRecommendations(env: Env, week: number, position?: string, limit: number = 50, scoring?: string, roster?: string) {
   // Get recent performance data (last 5 weeks)
   const recentWeeks = Math.max(1, week - 5);
   
@@ -60,8 +60,16 @@ export async function getRecommendations(env: Env, week: number, position?: stri
   
   const recommendations: RecommendationPlayer[] = [];
   
+  // Filter by roster if provided
+  const rosterPlayers = roster ? roster.split(',').map(name => name.trim()) : [];
+  
   for (const [_, player] of playerStats) {
     if (player.all.length === 0) continue;
+    
+    // Skip if not in roster (for start/sit recommendations)
+    if (rosterPlayers.length > 0 && !rosterPlayers.includes(player.name)) {
+      continue;
+    }
     
     const seasonAvg = player.all.reduce((sum, p) => sum + p, 0) / player.all.length;
     const recentAvg = player.recent.length > 0 
