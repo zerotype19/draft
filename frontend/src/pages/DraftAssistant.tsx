@@ -9,6 +9,8 @@ import WaiversTable from '../components/WaiversTable';
 import LeagueSetup from './LeagueSetup';
 import Simulator from './Simulator';
 import Alerts from './Alerts'; // NEW
+import SeasonPlanner from './SeasonPlanner';
+import TradeAnalyzer from './TradeAnalyzer';
 import { hasLeagueSettings, getLeagueSettings, getRoster, formatScoringForAPI } from '../lib/localStorage';
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
@@ -58,13 +60,13 @@ export default function DraftAssistant() {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers' | 'alerts' | 'simulator' | 'league-setup'>('rankings');
+  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers' | 'alerts' | 'season-planner' | 'trade-analyzer' | 'simulator' | 'league-setup'>('rankings');
 
   const [week, setWeek] = useState(18);
 
   // Check if league settings exist and redirect if needed
   useEffect(() => {
-    if (!hasLeagueSettings() && (activeTab === 'draft' || activeTab === 'recommendations' || activeTab === 'waivers' || activeTab === 'alerts' || activeTab === 'simulator')) {
+    if (!hasLeagueSettings() && (activeTab === 'draft' || activeTab === 'recommendations' || activeTab === 'waivers' || activeTab === 'alerts' || activeTab === 'season-planner' || activeTab === 'trade-analyzer' || activeTab === 'simulator')) {
       setActiveTab('league-setup');
     }
   }, [activeTab]);
@@ -335,6 +337,26 @@ export default function DraftAssistant() {
                 }`}
               >
                 Alerts
+              </button>
+              <button
+                onClick={() => setActiveTab('season-planner')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'season-planner'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Season Planner
+              </button>
+              <button
+                onClick={() => setActiveTab('trade-analyzer')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'trade-analyzer'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Trade Analyzer
               </button>
               <button
                 onClick={() => setActiveTab('simulator')}
@@ -628,6 +650,16 @@ export default function DraftAssistant() {
         {/* Alerts Tab */}
         {activeTab === 'alerts' && (
           <Alerts />
+        )}
+
+        {/* Season Planner Tab */}
+        {activeTab === 'season-planner' && (
+          <SeasonPlanner />
+        )}
+
+        {/* Trade Analyzer Tab */}
+        {activeTab === 'trade-analyzer' && (
+          <TradeAnalyzer />
         )}
 
         {/* Simulator Tab */}

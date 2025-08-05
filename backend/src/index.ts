@@ -8,6 +8,8 @@ import { getRecommendations } from "./recommendations";
 import { getWaivers } from "./waivers";
 import { simulateRoster } from "./simulator";
 import { getAlerts } from "./alerts";
+import { getSeasonStrategy } from "./season-strategy";
+import { analyzeTrade } from "./trade-analyzer";
 import { corsHeaders } from "./cors";
 
 export default {
@@ -269,6 +271,81 @@ export default {
       } catch (error) {
         console.error("Alerts error:", error);
         return new Response(`Alerts failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/season-strategy") {
+      try {
+        const roster = url.searchParams.get("roster");
+        const starters = url.searchParams.get("starters");
+        const playoffWeeks = url.searchParams.get("playoff_weeks");
+        const scoring = url.searchParams.get("scoring");
+        const includeInjuries = url.searchParams.get("includeInjuries");
+
+        if (!roster) {
+          return new Response("Roster parameter is required", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        if (!playoffWeeks) {
+          return new Response("Playoff weeks parameter is required", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        const strategy = await getSeasonStrategy(env, {
+          roster: roster.split(','),
+          starters: starters ? starters.split(',') : [],
+          playoff_weeks: playoffWeeks.split(',').map(w => Number(w)),
+          scoring: scoring || undefined,
+          includeInjuries: includeInjuries !== "false"
+        });
+
+        return new Response(JSON.stringify(strategy), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Season Strategy error:", error);
+        return new Response(`Season Strategy failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/trade-analyzer" && req.method === "POST") {
+      try {
+        const body = await req.json();
+        const { roster, give, receive, playoff_weeks, scoring, includeInjuries } = body;
+
+        if (!roster || !give || !receive || !playoff_weeks) {
+          return new Response("Missing required parameters: roster, give, receive, playoff_weeks", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        const analysis = await analyzeTrade(env, {
+          roster,
+          give,
+          receive,
+          playoff_weeks,
+          scoring,
+          includeInjuries: includeInjuries !== false
+        });
+
+        return new Response(JSON.stringify(analysis), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Trade Analyzer error:", error);
+        return new Response(`Trade Analyzer failed: ${error}`, { 
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "text/plain" }
         });

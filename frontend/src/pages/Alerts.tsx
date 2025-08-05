@@ -95,7 +95,8 @@ export default function Alerts() {
       bad_matchup: '🚫',
       waiver_opportunity: '🔥',
       cold_streak: '❄️',
-      lineup_optimization: '⚡'
+      lineup_optimization: '⚡',
+      playoff_alert: '🏆'
     };
     return icons[type];
   };
@@ -106,7 +107,8 @@ export default function Alerts() {
       bad_matchup: 'bg-orange-500/80',
       waiver_opportunity: 'bg-green-500/80',
       cold_streak: 'bg-blue-500/80',
-      lineup_optimization: 'bg-purple-500/80'
+      lineup_optimization: 'bg-purple-500/80',
+      playoff_alert: 'bg-yellow-500/80'
     };
     return colors[type];
   };

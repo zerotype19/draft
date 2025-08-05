@@ -118,7 +118,7 @@ export interface SimulationResponse {
 }
 
 export interface Alert {
-  type: 'injury' | 'bad_matchup' | 'waiver_opportunity' | 'cold_streak' | 'lineup_optimization';
+  type: 'injury' | 'bad_matchup' | 'waiver_opportunity' | 'cold_streak' | 'lineup_optimization' | 'playoff_alert';
   player: string;
   detail: string;
   impact: string;
@@ -128,6 +128,53 @@ export interface Alert {
     player_id?: string;
     swap_with_player_id?: string;
   };
+}
+
+export interface PlayoffIssue {
+  position: string;
+  issue: string;
+  suggestion: string;
+  affected_players: string[];
+  playoff_weeks: number[];
+  projected_impact: number;
+}
+
+export interface TradeAnalysis {
+  current_ros_total: number;
+  proposed_ros_total: number;
+  net_change: number;
+  weekly_breakdown: WeeklyProjection[];
+  impact_weeks: ImpactWeek[];
+  playoff_impact: PlayoffImpact;
+  depth_analysis: DepthAnalysis;
+}
+
+export interface WeeklyProjection {
+  week: number;
+  current_projection: number;
+  proposed_projection: number;
+  difference: number;
+  is_playoff_week: boolean;
+}
+
+export interface ImpactWeek {
+  week: number;
+  change: number;
+  reason: string;
+  is_playoff_week: boolean;
+}
+
+export interface PlayoffImpact {
+  current_playoff_total: number;
+  proposed_playoff_total: number;
+  playoff_change: number;
+  playoff_weeks_affected: number[];
+}
+
+export interface DepthAnalysis {
+  position_impact: Record<string, number>;
+  starter_impact: number;
+  bench_impact: number;
 }
 
 export async function getRankings(
@@ -266,6 +313,56 @@ export async function getAlerts(
   const response = await fetch(`${API_BASE}/alerts?${params}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch alerts: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getSeasonStrategy(
+  roster: string[],
+  starters: string[],
+  playoff_weeks: number[],
+  scoring?: string,
+  includeInjuries?: boolean
+): Promise<PlayoffIssue[]> {
+  const params = new URLSearchParams();
+  params.append('roster', roster.join(','));
+  params.append('starters', starters.join(','));
+  params.append('playoff_weeks', playoff_weeks.join(','));
+  if (scoring) params.append('scoring', scoring);
+  if (includeInjuries !== undefined) params.append('includeInjuries', includeInjuries.toString());
+
+  const response = await fetch(`${API_BASE}/season-strategy?${params}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch season strategy: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function analyzeTrade(
+  roster: string[],
+  give: string[],
+  receive: string[],
+  playoff_weeks: number[],
+  scoring?: string,
+  includeInjuries?: boolean
+): Promise<TradeAnalysis> {
+  const response = await fetch(`${API_BASE}/trade-analyzer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      roster,
+      give,
+      receive,
+      playoff_weeks,
+      scoring,
+      includeInjuries
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to analyze trade: ${response.statusText}`);
   }
   return response.json();
 } 

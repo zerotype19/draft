@@ -22,7 +22,9 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
     scoringSettings: { ...DEFAULT_SCORING_SETTINGS },
     roster: [],
     starters: [], // NEW: Default to empty array
-    includeInjuries: true
+    includeInjuries: true,
+    playoff_weeks: [15, 16, 17],
+    playoff_alerts_start_week: 10
   });
   
   const [roster, setRoster] = useState<string[]>([]);
@@ -276,6 +278,51 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
               <p className="text-gray-400 text-sm">
                 When enabled, player projections will be adjusted based on injury status, strength of schedule, and performance trends.
               </p>
+            </div>
+          </div>
+
+          {/* Playoff Settings */}
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+            <h2 className="text-2xl font-bold mb-4">Playoff Settings</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  Playoff Weeks
+                </label>
+                <input
+                  type="text"
+                  value={settings.playoff_weeks.join(', ')}
+                  onChange={(e) => {
+                    const weeks = e.target.value.split(',').map(w => parseInt(w.trim())).filter(w => !isNaN(w));
+                    setSettings(prev => ({ ...prev, playoff_weeks: weeks }));
+                  }}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  placeholder="15, 16, 17"
+                />
+                <p className="text-gray-400 text-sm mt-1">
+                  Enter playoff weeks separated by commas (e.g., 15, 16, 17)
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-300">
+                  Playoff Alerts Start Week
+                </label>
+                <input
+                  type="number"
+                  value={settings.playoff_alerts_start_week}
+                  onChange={(e) => setSettings(prev => ({ 
+                    ...prev, 
+                    playoff_alerts_start_week: parseInt(e.target.value) || 10 
+                  }))}
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  min="1"
+                  max="18"
+                />
+                <p className="text-gray-400 text-sm mt-1">
+                  Week when playoff alerts start appearing (default: 10)
+                </p>
+              </div>
             </div>
           </div>
 

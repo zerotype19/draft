@@ -25,6 +25,8 @@ export interface LeagueSettings {
   roster: string[]; // Array of player_ids
   starters: string[]; // Array of player_ids who are starters
   includeInjuries: boolean; // Enhanced predictive modeling setting
+  playoff_weeks: number[]; // e.g., [15, 16, 17]
+  playoff_alerts_start_week: number; // e.g., 10
 }
 
 export const DEFAULT_SCORING_SETTINGS = {
@@ -60,6 +62,13 @@ export function getLeagueSettings(): LeagueSettings | null {
     // Ensure backward compatibility by adding includeInjuries if not present
     if (settings.includeInjuries === undefined) {
       settings.includeInjuries = true; // Default to true
+    }
+    // Ensure backward compatibility by adding playoff settings if not present
+    if (settings.playoff_weeks === undefined) {
+      settings.playoff_weeks = [15, 16, 17]; // Default playoff weeks
+    }
+    if (settings.playoff_alerts_start_week === undefined) {
+      settings.playoff_alerts_start_week = 10; // Default start week
     }
     return settings;
   } catch (error) {
