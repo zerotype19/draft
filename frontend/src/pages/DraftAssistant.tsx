@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getRankings } from '../lib/api';
-import type { Player } from '../lib/api';
+import { getRankings, getDraftRankings, getRecommendations, getWaivers } from '../lib/api';
+import type { Player, DraftPlayer, RecommendationPlayer, WaiverPlayer } from '../lib/api';
 import PlayerTable from '../components/PlayerTable';
 import PlayerModal from '../components/PlayerModal';
+import DraftRankingsTable from '../components/DraftRankingsTable';
+import RecommendationsTable from '../components/RecommendationsTable';
+import WaiversTable from '../components/WaiversTable';
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
 export default function DraftAssistant() {
@@ -14,6 +17,9 @@ export default function DraftAssistant() {
     return localStorage.getItem('draft-position') || "";
   });
   const [players, setPlayers] = useState<Player[]>([]);
+  const [draftPlayers, setDraftPlayers] = useState<DraftPlayer[]>([]);
+  const [recommendations, setRecommendations] = useState<RecommendationPlayer[]>([]);
+  const [waivers, setWaivers] = useState<WaiverPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(() => {
@@ -48,6 +54,8 @@ export default function DraftAssistant() {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
+  const [activeTab, setActiveTab] = useState<'rankings' | 'draft' | 'recommendations' | 'waivers'>('rankings');
+  const [week, setWeek] = useState(18);
 
   // Theme toggle handler with console logging
   const toggleTheme = () => {
@@ -86,6 +94,39 @@ export default function DraftAssistant() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [season, position, limit]);
+
+  // Fetch draft rankings data
+  useEffect(() => {
+    if (activeTab === 'draft') {
+      getDraftRankings(season, position, limit, offset)
+        .then((data) => {
+          setDraftPlayers(data.results);
+        })
+        .catch((err) => console.error('Failed to fetch draft data:', err));
+    }
+  }, [activeTab, season, position, limit, offset]);
+
+  // Fetch recommendations data
+  useEffect(() => {
+    if (activeTab === 'recommendations') {
+      getRecommendations(week, position, limit)
+        .then((data) => {
+          setRecommendations(data.results);
+        })
+        .catch((err) => console.error('Failed to fetch recommendations:', err));
+    }
+  }, [activeTab, week, position, limit]);
+
+  // Fetch waivers data
+  useEffect(() => {
+    if (activeTab === 'waivers') {
+      getWaivers(week, position, limit)
+        .then((data) => {
+          setWaivers(data.results);
+        })
+        .catch((err) => console.error('Failed to fetch waivers:', err));
+    }
+  }, [activeTab, week, position, limit]);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -215,6 +256,54 @@ export default function DraftAssistant() {
           </div>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('rankings')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'rankings'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Rankings
+              </button>
+              <button
+                onClick={() => setActiveTab('draft')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'draft'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Draft Prep
+              </button>
+              <button
+                onClick={() => setActiveTab('recommendations')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'recommendations'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Start/Sit
+              </button>
+              <button
+                onClick={() => setActiveTab('waivers')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'waivers'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                Waivers
+              </button>
+            </nav>
+          </div>
+        </div>
+
         {/* Modern Toolbar */}
         <div className="rounded-xl shadow-lg p-6 mb-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
           {/* Search Bar - Prominent placement */}
@@ -269,6 +358,24 @@ export default function DraftAssistant() {
                   <option value="DEF">DEF</option>
                 </select>
               </div>
+              
+              {(activeTab === 'recommendations' || activeTab === 'waivers') && (
+                <div>
+                  <label htmlFor="week" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                    Week
+                  </label>
+                  <select 
+                    id="week"
+                    value={week} 
+                    onChange={(e) => setWeek(Number(e.target.value))}
+                    className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  >
+                    {Array.from({ length: 18 }, (_, i) => i + 1).map(w => (
+                      <option key={w} value={w}>Week {w}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Showing {startIndex}-{endIndex} of {totalPlayers} players
@@ -337,7 +444,7 @@ export default function DraftAssistant() {
           </div>
         )}
 
-        {!loading && !error && filteredPlayers.length === 0 && (
+        {!loading && !error && filteredPlayers.length === 0 && activeTab === 'rankings' && (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">
               {searchTerm ? `No players found matching "${searchTerm}".` : "No players found for the selected criteria."}
@@ -345,7 +452,8 @@ export default function DraftAssistant() {
           </div>
         )}
 
-        {!loading && !error && filteredPlayers.length > 0 && (
+        {/* Rankings Tab */}
+        {activeTab === 'rankings' && !loading && !error && filteredPlayers.length > 0 && (
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
             <PlayerTable 
               players={filteredPlayers} 
@@ -358,6 +466,106 @@ export default function DraftAssistant() {
               onToggleWatchlist={handleToggleWatchlist}
               showWatchlistOnly={showWatchlistOnly}
             />
+          </div>
+        )}
+
+        {/* Draft Rankings Tab */}
+        {activeTab === 'draft' && !loading && draftPlayers.length > 0 && (
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+            <DraftRankingsTable 
+              players={draftPlayers} 
+              sortColumn={sortColumn}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              onPlayerClick={(player) => {
+                // Convert DraftPlayer to Player for modal
+                const playerForModal: Player = {
+                  name: player.name,
+                  position: player.position,
+                  team: player.team,
+                  total_points: player.total_points,
+                  games_played: Math.round(player.total_points / player.avg_points),
+                  avg_points: player.avg_points
+                };
+                setSelectedPlayer(playerForModal);
+                setIsModalOpen(true);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Recommendations Tab */}
+        {activeTab === 'recommendations' && !loading && recommendations.length > 0 && (
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+            <RecommendationsTable 
+              players={recommendations} 
+              sortColumn={sortColumn}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              onPlayerClick={(player) => {
+                // Convert RecommendationPlayer to Player for modal
+                const playerForModal: Player = {
+                  name: player.name,
+                  position: player.position,
+                  team: player.team,
+                  total_points: player.weighted_avg * 18, // Estimate total
+                  games_played: 18,
+                  avg_points: player.weighted_avg
+                };
+                setSelectedPlayer(playerForModal);
+                setIsModalOpen(true);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Waivers Tab */}
+        {activeTab === 'waivers' && !loading && waivers.length > 0 && (
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden">
+            <WaiversTable 
+              players={waivers} 
+              sortColumn={sortColumn}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              onPlayerClick={(player) => {
+                // Convert WaiverPlayer to Player for modal
+                const playerForModal: Player = {
+                  name: player.name,
+                  position: player.position,
+                  team: player.team,
+                  total_points: player.avg_points * 18, // Estimate total
+                  games_played: 18,
+                  avg_points: player.avg_points
+                };
+                setSelectedPlayer(playerForModal);
+                setIsModalOpen(true);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Empty states for other tabs */}
+        {activeTab === 'draft' && !loading && draftPlayers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 dark:text-gray-400">
+              No draft rankings found for the selected criteria.
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'recommendations' && !loading && recommendations.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 dark:text-gray-400">
+              No recommendations found for Week {week}.
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'waivers' && !loading && waivers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 dark:text-gray-400">
+              No waiver recommendations found for Week {week}.
+            </p>
           </div>
         )}
       </div>
