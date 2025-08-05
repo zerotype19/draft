@@ -21,6 +21,7 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
     rosterSlots: { ...DEFAULT_ROSTER_SLOTS },
     scoringSettings: { ...DEFAULT_SCORING_SETTINGS },
     roster: [],
+    starters: [], // NEW: Default to empty array
     includeInjuries: true
   });
   

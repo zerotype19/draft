@@ -9,7 +9,7 @@ import WaiversTable from '../components/WaiversTable';
 import LeagueSetup from './LeagueSetup';
 import Simulator from './Simulator';
 import Alerts from './Alerts'; // NEW
-import { hasLeagueSettings, getLeagueSettings, getRoster, getStarters, formatScoringForAPI } from '../lib/localStorage';
+import { hasLeagueSettings, getLeagueSettings, getRoster, formatScoringForAPI } from '../lib/localStorage';
 
 // Professional Fantasy Draft Assistant with Dark/Light Mode - Updated for deployment - CSS FIXED - THEME DEBUG
 export default function DraftAssistant() {
