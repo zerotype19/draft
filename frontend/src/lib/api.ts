@@ -1,3 +1,5 @@
+const API_BASE = "https://draft-api.kevin-mcgovern.workers.dev/api";
+
 export interface Player {
   name: string;
   position: string;
