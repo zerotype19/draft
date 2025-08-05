@@ -23,6 +23,7 @@ export interface LeagueSettings {
     fumble_lost_points: number;
   };
   roster: string[]; // Array of player_ids
+  includeInjuries: boolean; // Enhanced predictive modeling setting
 }
 
 export const DEFAULT_SCORING_SETTINGS = {
@@ -52,7 +53,14 @@ export const DEFAULT_ROSTER_SLOTS = {
 export function getLeagueSettings(): LeagueSettings | null {
   try {
     const stored = localStorage.getItem('leagueSettings');
-    return stored ? JSON.parse(stored) : null;
+    if (!stored) return null;
+    
+    const settings = JSON.parse(stored);
+    // Ensure backward compatibility by adding includeInjuries if not present
+    if (settings.includeInjuries === undefined) {
+      settings.includeInjuries = true; // Default to true
+    }
+    return settings;
   } catch (error) {
     console.error('Error reading league settings:', error);
     return null;

@@ -1,4 +1,5 @@
 import { Env } from "./db";
+import { predictiveModeling } from "./predictive-modeling";
 
 interface DraftPlayer {
   name: string;
@@ -11,9 +12,14 @@ interface DraftPlayer {
   bust_rate: number;
   tier: number;
   adp?: number;
+  // Enhanced predictive modeling fields
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+  enhancedProjection?: number;
 }
 
-export async function getDraftRankings(env: Env, season?: number, position?: string, limit: number = 50, offset: number = 0, scoring?: string) {
+export async function getDraftRankings(env: Env, season?: number, position?: string, limit: number = 50, offset: number = 0, scoring?: string, includeInjuries?: boolean) {
   // Get all weekly stats for the season to calculate advanced metrics
   let weeklyStatsQuery = `
     SELECT p.name, p.position, p.team, s.week, s.total_points
@@ -106,6 +112,26 @@ export async function getDraftRankings(env: Env, season?: number, position?: str
   
   // Apply limit and offset
   const paginatedPlayers = draftPlayers.slice(offset, offset + limit);
+  
+  // Apply enhanced predictive modeling if requested
+  if (includeInjuries !== false) { // Default to true if not specified
+    for (const player of paginatedPlayers) {
+      const enhanced = await predictiveModeling.enhanceProjection(
+        env,
+        player.name,
+        player.position,
+        player.team,
+        player.avg_points, // Use avg_points as base projection
+        season || 2024,
+        includeInjuries
+      );
+      
+      player.injuryStatus = enhanced.injuryStatus;
+      player.sosScore = enhanced.sosScore;
+      player.trend = enhanced.trend;
+      player.enhancedProjection = enhanced.finalProjection;
+    }
+  }
   
   return {
     results: paginatedPlayers,

@@ -1,4 +1,5 @@
 import { Env } from "./db";
+import { predictiveModeling } from "./predictive-modeling";
 
 interface RecommendationPlayer {
   name: string;
@@ -11,9 +12,14 @@ interface RecommendationPlayer {
   projected_points: number;
   recommendation: 'START' | 'SIT' | 'FLEX';
   reason: string;
+  // Enhanced predictive modeling fields
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+  enhancedProjection?: number;
 }
 
-export async function getRecommendations(env: Env, week: number, position?: string, limit: number = 50, scoring?: string, roster?: string) {
+export async function getRecommendations(env: Env, week: number, position?: string, limit: number = 50, scoring?: string, roster?: string, includeInjuries?: boolean) {
   // Get recent performance data (last 5 weeks)
   const recentWeeks = Math.max(1, week - 5);
   
@@ -117,6 +123,26 @@ export async function getRecommendations(env: Env, week: number, position?: stri
   
   // Sort by projected points
   recommendations.sort((a, b) => b.projected_points - a.projected_points);
+  
+  // Apply enhanced predictive modeling if requested
+  if (includeInjuries !== false) { // Default to true if not specified
+    for (const player of recommendations.slice(0, limit)) {
+      const enhanced = await predictiveModeling.enhanceProjection(
+        env,
+        player.name,
+        player.position,
+        player.team,
+        player.projected_points, // Use projected_points as base projection
+        2024, // Use 2024 season
+        includeInjuries
+      );
+      
+      player.injuryStatus = enhanced.injuryStatus;
+      player.sosScore = enhanced.sosScore;
+      player.trend = enhanced.trend;
+      player.enhancedProjection = enhanced.finalProjection;
+    }
+  }
   
   return {
     results: recommendations.slice(0, limit),

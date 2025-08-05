@@ -20,7 +20,8 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
     leagueName: '',
     rosterSlots: { ...DEFAULT_ROSTER_SLOTS },
     scoringSettings: { ...DEFAULT_SCORING_SETTINGS },
-    roster: []
+    roster: [],
+    includeInjuries: true
   });
   
   const [roster, setRoster] = useState<string[]>([]);
@@ -252,6 +253,28 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Enhanced Predictive Modeling */}
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+            <h2 className="text-2xl font-bold mb-4">Enhanced Predictive Modeling</h2>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="includeInjuries"
+                  checked={settings.includeInjuries}
+                  onChange={(e) => setSettings(prev => ({ ...prev, includeInjuries: e.target.checked }))}
+                  className="w-5 h-5 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <label htmlFor="includeInjuries" className="text-white font-medium">
+                  Include injury adjustments in projections
+                </label>
+              </div>
+              <p className="text-gray-400 text-sm">
+                When enabled, player projections will be adjusted based on injury status, strength of schedule, and performance trends.
+              </p>
             </div>
           </div>
 

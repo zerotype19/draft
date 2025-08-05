@@ -1,4 +1,5 @@
 import { Env } from "./db";
+import { predictiveModeling } from "./predictive-modeling";
 
 interface WaiverPlayer {
   name: string;
@@ -9,9 +10,14 @@ interface WaiverPlayer {
   breakout_flag: boolean;
   recent_trend: string;
   pickup_priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  // Enhanced predictive modeling fields
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+  enhancedProjection?: number;
 }
 
-export async function getWaivers(env: Env, week: number, position?: string, limit: number = 50, scoring?: string, roster?: string) {
+export async function getWaivers(env: Env, week: number, position?: string, limit: number = 50, scoring?: string, roster?: string, includeInjuries?: boolean) {
   // Get all stats for the season
   let query = `
     SELECT p.name, p.position, p.team, s.week, s.total_points
@@ -113,6 +119,26 @@ export async function getWaivers(env: Env, week: number, position?: string, limi
   
   // Sort by ROS projection
   waiverPlayers.sort((a, b) => b.ros_projection - a.ros_projection);
+  
+  // Apply enhanced predictive modeling if requested
+  if (includeInjuries !== false) { // Default to true if not specified
+    for (const player of waiverPlayers.slice(0, limit)) {
+      const enhanced = await predictiveModeling.enhanceProjection(
+        env,
+        player.name,
+        player.position,
+        player.team,
+        player.ros_projection, // Use ros_projection as base projection
+        2024, // Use 2024 season
+        includeInjuries
+      );
+      
+      player.injuryStatus = enhanced.injuryStatus;
+      player.sosScore = enhanced.sosScore;
+      player.trend = enhanced.trend;
+      player.enhancedProjection = enhanced.finalProjection;
+    }
+  }
   
   return {
     results: waiverPlayers.slice(0, limit),

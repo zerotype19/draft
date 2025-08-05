@@ -44,6 +44,39 @@ export default function DraftRankingsTable({
     return colors[position] || "bg-gray-500/80 text-white";
   };
 
+  const getInjuryStatusColor = (status?: string): string => {
+    if (!status) return '';
+    const colors: Record<string, string> = {
+      'Q': 'bg-yellow-500/80 text-white',
+      'O': 'bg-red-500/80 text-white',
+      'IR': 'bg-red-500/80 text-white',
+      'PUP': 'bg-orange-500/80 text-white',
+      'Doubtful': 'bg-orange-500/80 text-white',
+      'Probable': 'bg-green-500/80 text-white'
+    };
+    return colors[status] || '';
+  };
+
+  const getSOSColor = (score?: string): string => {
+    if (!score) return '';
+    const colors: Record<string, string> = {
+      'Easy': 'bg-green-500/80 text-white',
+      'Medium': 'bg-gray-500/80 text-white',
+      'Hard': 'bg-red-500/80 text-white'
+    };
+    return colors[score] || '';
+  };
+
+  const getTrendIcon = (trend?: string): string => {
+    if (!trend) return '';
+    const icons: Record<string, string> = {
+      'Hot': '🔥',
+      'Cold': '❄️',
+      'Neutral': ''
+    };
+    return icons[trend] || '';
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-700">
@@ -53,6 +86,8 @@ export default function DraftRankingsTable({
             <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Name</th>
             <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Pos</th>
             <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Team</th>
+            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-center">Status</th>
+            <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-center">SOS</th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
               onClick={() => onSort('total_points', sortDirection)}
@@ -64,6 +99,12 @@ export default function DraftRankingsTable({
               onClick={() => onSort('avg_points', sortDirection)}
             >
               Avg Points {sortColumn === 'avg_points' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </th>
+            <th 
+              className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
+              onClick={() => onSort('enhancedProjection', sortDirection)}
+            >
+              Enhanced {sortColumn === 'enhancedProjection' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
@@ -99,15 +140,37 @@ export default function DraftRankingsTable({
               onClick={() => onPlayerClick?.(player)}
             >
               <td className="px-4 py-2 text-sm text-gray-300">{i + 1}</td>
-              <td className="px-4 py-2 text-sm font-medium text-white">{player.name}</td>
+              <td className="px-4 py-2 text-sm font-medium text-white">
+                {player.name}
+                {player.trend && (
+                  <span className="ml-2 text-sm">{getTrendIcon(player.trend)}</span>
+                )}
+              </td>
               <td className="px-4 py-2 text-sm">
                 <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getPositionColor(player.position)}`}>
                   {player.position}
                 </span>
               </td>
               <td className="px-4 py-2 text-sm text-gray-300">{player.team}</td>
+              <td className="px-4 py-2 text-sm text-center">
+                {player.injuryStatus && (
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getInjuryStatusColor(player.injuryStatus)}`}>
+                    {player.injuryStatus}
+                  </span>
+                )}
+              </td>
+              <td className="px-4 py-2 text-sm text-center">
+                {player.sosScore && (
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getSOSColor(player.sosScore)}`}>
+                    {player.sosScore}
+                  </span>
+                )}
+              </td>
               <td className="px-4 py-2 text-sm text-gray-300 text-right">{player.total_points.toFixed(1)}</td>
               <td className="px-4 py-2 text-sm text-gray-300 text-right">{player.avg_points.toFixed(1)}</td>
+              <td className="px-4 py-2 text-sm text-gray-300 text-right">
+                {player.enhancedProjection ? player.enhancedProjection.toFixed(1) : '-'}
+              </td>
               <td className={`px-4 py-2 text-sm text-right font-medium ${getConsistencyColor(player.consistency_score)}`}>
                 {(player.consistency_score * 100).toFixed(0)}%
               </td>

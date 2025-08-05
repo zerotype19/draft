@@ -134,6 +134,7 @@ export default {
         const limit = url.searchParams.get("limit");
         const offset = url.searchParams.get("offset");
         const scoring = url.searchParams.get("scoring");
+        const includeInjuries = url.searchParams.get("includeInjuries");
 
         const rankings = await getDraftRankings(
           env,
@@ -141,7 +142,8 @@ export default {
           position || undefined,
           limit ? Number(limit) : 50,
           offset ? Number(offset) : 0,
-          scoring || undefined
+          scoring || undefined,
+          includeInjuries !== "false" // Default to true unless explicitly false
         );
         return new Response(JSON.stringify(rankings), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -162,6 +164,7 @@ export default {
         const limit = url.searchParams.get("limit");
         const scoring = url.searchParams.get("scoring");
         const roster = url.searchParams.get("roster");
+        const includeInjuries = url.searchParams.get("includeInjuries");
 
         if (!week) {
           return new Response("Week parameter is required", { 
@@ -176,7 +179,8 @@ export default {
           position || undefined,
           limit ? Number(limit) : 50,
           scoring || undefined,
-          roster || undefined
+          roster || undefined,
+          includeInjuries !== "false" // Default to true unless explicitly false
         );
         return new Response(JSON.stringify(recommendations), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -197,6 +201,7 @@ export default {
         const limit = url.searchParams.get("limit");
         const scoring = url.searchParams.get("scoring");
         const roster = url.searchParams.get("roster");
+        const includeInjuries = url.searchParams.get("includeInjuries");
 
         if (!week) {
           return new Response("Week parameter is required", { 
@@ -211,7 +216,8 @@ export default {
           position || undefined,
           limit ? Number(limit) : 50,
           scoring || undefined,
-          roster || undefined
+          roster || undefined,
+          includeInjuries !== "false" // Default to true unless explicitly false
         );
         return new Response(JSON.stringify(waivers), { 
           headers: { ...corsHeaders, "Content-Type": "application/json" } 

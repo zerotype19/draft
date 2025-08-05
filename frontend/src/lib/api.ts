@@ -25,6 +25,11 @@ export interface DraftPlayer {
   bust_rate: number;
   tier: number;
   adp?: number;
+  // Enhanced predictive modeling fields
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+  enhancedProjection?: number;
 }
 
 export interface DraftRankingsResponse {
@@ -43,6 +48,11 @@ export interface RecommendationPlayer {
   projected_points: number;
   recommendation: 'START' | 'SIT' | 'FLEX';
   reason: string;
+  // Enhanced predictive modeling fields
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+  enhancedProjection?: number;
 }
 
 export interface RecommendationsResponse {
@@ -61,6 +71,11 @@ export interface WaiverPlayer {
   breakout_flag: boolean;
   recent_trend: string;
   pickup_priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  // Enhanced predictive modeling fields
+  injuryStatus?: string;
+  sosScore?: string;
+  trend?: string;
+  enhancedProjection?: number;
 }
 
 export interface WaiversResponse {
@@ -95,7 +110,8 @@ export async function getDraftRankings(
   limit: number = 50,
   offset: number = 0,
   scoring?: string,
-  roster?: string
+  roster?: string,
+  includeInjuries?: boolean
 ): Promise<DraftRankingsResponse> {
   const params = new URLSearchParams();
   if (season) params.append('season', season.toString());
@@ -104,6 +120,7 @@ export async function getDraftRankings(
   params.append('offset', offset.toString());
   if (scoring) params.append('scoring', scoring);
   if (roster) params.append('roster', roster);
+  if (includeInjuries !== undefined) params.append('includeInjuries', includeInjuries.toString());
 
   const response = await fetch(`${API_BASE}/draft-rankings?${params}`);
   if (!response.ok) {
@@ -117,7 +134,8 @@ export async function getRecommendations(
   position?: string,
   limit: number = 50,
   scoring?: string,
-  roster?: string
+  roster?: string,
+  includeInjuries?: boolean
 ): Promise<RecommendationsResponse> {
   const params = new URLSearchParams();
   params.append('week', week.toString());
@@ -125,6 +143,7 @@ export async function getRecommendations(
   params.append('limit', limit.toString());
   if (scoring) params.append('scoring', scoring);
   if (roster) params.append('roster', roster);
+  if (includeInjuries !== undefined) params.append('includeInjuries', includeInjuries.toString());
 
   const response = await fetch(`${API_BASE}/recommendations?${params}`);
   if (!response.ok) {
@@ -138,7 +157,8 @@ export async function getWaivers(
   position?: string,
   limit: number = 50,
   scoring?: string,
-  roster?: string
+  roster?: string,
+  includeInjuries?: boolean
 ): Promise<WaiversResponse> {
   const params = new URLSearchParams();
   params.append('week', week.toString());
@@ -146,6 +166,7 @@ export async function getWaivers(
   params.append('limit', limit.toString());
   if (scoring) params.append('scoring', scoring);
   if (roster) params.append('roster', roster);
+  if (includeInjuries !== undefined) params.append('includeInjuries', includeInjuries.toString());
 
   const response = await fetch(`${API_BASE}/waivers?${params}`);
   if (!response.ok) {

@@ -110,8 +110,9 @@ export default function DraftAssistant() {
     if (activeTab === 'draft') {
       const leagueSettings = getLeagueSettings();
       const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
+      const includeInjuries = leagueSettings?.includeInjuries ?? true;
       
-      getDraftRankings(season, position, limit, offset, scoring)
+      getDraftRankings(season, position, limit, offset, scoring, undefined, includeInjuries)
         .then((data) => {
           setDraftPlayers(data.results);
         })
@@ -125,8 +126,9 @@ export default function DraftAssistant() {
       const leagueSettings = getLeagueSettings();
       const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
       const roster = getRoster().join(',');
+      const includeInjuries = leagueSettings?.includeInjuries ?? true;
       
-      getRecommendations(week, position, limit, scoring, roster)
+      getRecommendations(week, position, limit, scoring, roster, includeInjuries)
         .then((data) => {
           setRecommendations(data.results);
         })
@@ -140,8 +142,9 @@ export default function DraftAssistant() {
       const leagueSettings = getLeagueSettings();
       const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
       const roster = getRoster().join(',');
+      const includeInjuries = leagueSettings?.includeInjuries ?? true;
       
-      getWaivers(week, position, limit, scoring, roster)
+      getWaivers(week, position, limit, scoring, roster, includeInjuries)
         .then((data) => {
           setWaivers(data.results);
         })
