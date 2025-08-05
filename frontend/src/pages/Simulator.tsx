@@ -141,7 +141,6 @@ export default function Simulator() {
   };
 
   const loadScenario = (scenario: SimulationScenario) => {
-    setCurrentScenario(scenario);
     setPendingMoves(scenario.moves);
     setSimulationResult(scenario.result || null);
   };
