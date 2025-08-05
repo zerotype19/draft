@@ -17,16 +17,16 @@ interface PlayerTableProps {
 // Position badge styling function with professional colors
 function positionBadge(pos: string, isSelected: boolean = false) {
   const colors: Record<string, string> = {
-    QB: "bg-blue-500/80 text-white",
-    RB: "bg-green-500/80 text-white",
-    WR: "bg-orange-500/80 text-white",
-    TE: "bg-purple-500/80 text-white",
-    K: "bg-pink-500/80 text-white",
-    DEF: "bg-gray-500/80 text-white"
+    QB: "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg",
+    RB: "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg",
+    WR: "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg",
+    TE: "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg",
+    K: "bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg",
+    DEF: "bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg"
   };
   
-  const baseColor = colors[pos] || "bg-gray-500/80 text-white";
-  return isSelected ? baseColor.replace('/80', '/90') : baseColor;
+  const baseColor = colors[pos] || "bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg";
+  return isSelected ? baseColor.replace('shadow-lg', 'shadow-xl ring-2 ring-white/50') : baseColor;
 }
 
 export default function PlayerTable({ 
@@ -75,14 +75,14 @@ export default function PlayerTable({
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto rounded-xl shadow-2xl">
       <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-50 dark:bg-gray-700">
+        <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
           <tr>
             <th className="px-6 py-4 text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-300 w-12">
               <input
                 type="checkbox"
-                className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
+                className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 shadow-sm"
                 checked={filteredPlayers.length > 0 && filteredPlayers.every(p => watchlist.has(p.name))}
                 onChange={(e) => {
                   if (e.target.checked) {
@@ -154,13 +154,13 @@ export default function PlayerTable({
           {filteredPlayers.map((player, index) => (
             <tr 
               key={player.name} 
-              className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-purple-900/20 dark:hover:to-blue-900/20 transition-all duration-200 cursor-pointer group"
               onClick={() => onPlayerClick(player)}
             >
               <td className="px-6 py-4 whitespace-nowrap">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
+                  className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500 shadow-sm"
                   checked={watchlist.has(player.name)}
                   onChange={(e) => {
                     e.stopPropagation();
@@ -168,29 +168,29 @@ export default function PlayerTable({
                   }}
                 />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-gray-900 dark:text-white font-bold">
                 {index + 1}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-xs font-medium text-gray-900 dark:text-white">
+                <div className="text-xs font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                   {player.name}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
+                <span className={`inline-flex px-3 py-1.5 text-xs font-bold rounded-full ${positionBadge(player.position, selectedPosition === player.position)}`}>
                   {player.position}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-900 dark:text-white font-medium">
                 {player.team}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white font-bold">
                 {player.total_points.toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
                 {player.games_played}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white">
+              <td className="px-6 py-4 whitespace-nowrap text-xs text-right font-mono text-gray-900 dark:text-white font-bold">
                 {player.avg_points.toFixed(2)}
               </td>
             </tr>

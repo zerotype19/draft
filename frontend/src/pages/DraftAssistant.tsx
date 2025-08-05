@@ -64,6 +64,15 @@ export default function DraftAssistant() {
 
   const [week, setWeek] = useState(18);
 
+  // Apply dark mode to document
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   // Check if league settings exist and redirect if needed
   useEffect(() => {
     if (!hasLeagueSettings() && (activeTab === 'draft' || activeTab === 'recommendations' || activeTab === 'waivers' || activeTab === 'alerts' || activeTab === 'season-planner' || activeTab === 'trade-analyzer' || activeTab === 'simulator')) {
@@ -99,67 +108,61 @@ export default function DraftAssistant() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [season, position, limit]);
+  }, [season, position]);
 
-  // Fetch draft rankings data
+  // Load draft rankings when tab is active
   useEffect(() => {
     if (activeTab === 'draft') {
-      const leagueSettings = getLeagueSettings();
-      const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
-      const includeInjuries = leagueSettings?.includeInjuries ?? true;
-      
-      getDraftRankings(season, position, limit, offset, scoring, undefined, includeInjuries)
+      setLoading(true);
+      getDraftRankings(season, position, limit, 0)
         .then((data) => {
           setDraftPlayers(data.results);
+          setTotalPlayers(data.total_count);
         })
-        .catch((err) => console.error('Failed to fetch draft data:', err));
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
     }
-  }, [activeTab, season, position, limit, offset]);
+  }, [activeTab, season, position]);
 
-  // Fetch recommendations data
+  // Load recommendations when tab is active
   useEffect(() => {
     if (activeTab === 'recommendations') {
-      const leagueSettings = getLeagueSettings();
-      const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
-      const roster = getRoster().join(',');
-      const includeInjuries = leagueSettings?.includeInjuries ?? true;
-      
-      getRecommendations(week, position, limit, scoring, roster, includeInjuries)
+      setLoading(true);
+      getRecommendations(week, position, limit)
         .then((data) => {
           setRecommendations(data.results);
+          setTotalPlayers(data.total_count);
         })
-        .catch((err) => console.error('Failed to fetch recommendations:', err));
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
     }
-  }, [activeTab, week, position, limit]);
+  }, [activeTab, week, position]);
 
-  // Fetch waivers data
+  // Load waivers when tab is active
   useEffect(() => {
     if (activeTab === 'waivers') {
-      const leagueSettings = getLeagueSettings();
-      const scoring = leagueSettings ? formatScoringForAPI(leagueSettings.scoringSettings) : undefined;
-      const roster = getRoster().join(',');
-      const includeInjuries = leagueSettings?.includeInjuries ?? true;
-      
-      getWaivers(week, position, limit, scoring, roster, includeInjuries)
+      setLoading(true);
+      getWaivers(week, position, limit)
         .then((data) => {
           setWaivers(data.results);
+          setTotalPlayers(data.total_count);
         })
-        .catch((err) => console.error('Failed to fetch waivers:', err));
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
     }
-  }, [activeTab, week, position, limit]);
+  }, [activeTab, week, position]);
 
+  // Keyboard event listener for modal
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isModalOpen) {
-        handleCloseModal();
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
       }
     };
-
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isModalOpen]);
+  }, []);
 
-  // Handle filter changes
   const handleSeasonChange = (newSeason: number) => {
     setSeason(newSeason);
     saveFilters(newSeason, position, searchTerm);
@@ -203,38 +206,39 @@ export default function DraftAssistant() {
   };
 
   const handleExportCSV = () => {
+    const headers = ['Rank', 'Name', 'Position', 'Team', 'Total Points', 'Games Played', 'Avg Points'];
     const csvContent = [
-      ['Name', 'Position', 'Team', 'Total Points', 'Games Played', 'Avg Points'],
-      ...filteredPlayers.map(player => [
+      headers.join(','),
+      ...filteredPlayers.map((player, index) => [
+        index + 1,
         player.name,
         player.position,
         player.team,
-        player.total_points.toFixed(2),
-        player.games_played.toString(),
-        player.avg_points.toFixed(2)
-      ])
-    ].map(row => row.join(',')).join('\n');
+        player.total_points,
+        player.games_played,
+        player.avg_points
+      ].join(','))
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `draft-rankings-${season}-${position || 'all'}.csv`;
+    a.download = `fantasy-players-${season}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
 
-  // Handle pagination
   const handlePageChange = async (newOffset: number) => {
+    setOffset(newOffset);
     setLoading(true);
-    setError(null);
     
     try {
       const data = await getRankings(season, position, limit, newOffset);
       setPlayers(data.results);
-      setOffset(newOffset);
+      setTotalPlayers(data.total_count);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -242,10 +246,12 @@ export default function DraftAssistant() {
     }
   };
 
-  // Filter players based on search term (client-side)
-  const filteredPlayers = players.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter players based on search term and watchlist
+  const filteredPlayers = players.filter(player => {
+    const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesWatchlist = !showWatchlistOnly || watchlist.has(player.name);
+    return matchesSearch && matchesWatchlist;
+  });
 
   const startIndex = offset + 1;
   const endIndex = offset + filteredPlayers.length;
@@ -268,54 +274,66 @@ export default function DraftAssistant() {
   ];
 
   return (
-    <div className={`flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header with Theme Toggle */}
-        <div className="flex justify-between items-center mb-8 pt-6">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Draft Assistant</h1>
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
-            aria-label="Toggle theme"
-          >
-            {darkMode ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {/* Modern Tab Navigation */}
-        <div className="mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex flex-wrap gap-2 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'bg-purple-600 text-white shadow-sm'
-                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Enhanced Header with Gradient Background */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-2xl shadow-2xl"></div>
+          <div className="relative flex justify-between items-center p-8">
+            <div>
+              <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
+                Draft Assistant
+              </h1>
+              <p className="text-purple-100 text-lg font-medium">
+                Professional Fantasy Football Analytics
+              </p>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="p-3 rounded-xl bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30 transition-all duration-200 shadow-lg hover:shadow-xl"
+              aria-label="Toggle theme"
+            >
+              {darkMode ? (
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Search & Filters Row */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
-          {/* Search Field */}
-          <div className="mb-6">
+        {/* Enhanced Tab Navigation */}
+        <div className="mb-8">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-2 shadow-xl">
+            <div className="flex flex-wrap gap-2 overflow-x-auto">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Search & Filters Section */}
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl p-8 mb-8">
+          {/* Enhanced Search Field */}
+          <div className="mb-8">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -324,38 +342,38 @@ export default function DraftAssistant() {
                 placeholder="Search player name..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="w-full sm:w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                className="w-full sm:w-80 pl-12 pr-4 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 shadow-lg"
               />
             </div>
           </div>
 
-          {/* Filters Row */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div className="flex flex-wrap gap-4">
-              <div>
-                <label htmlFor="season" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+          {/* Enhanced Filters Row */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="flex flex-wrap gap-6">
+              <div className="space-y-2">
+                <label htmlFor="season" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
                   Season
                 </label>
                 <select 
                   id="season"
                   value={season} 
                   onChange={(e) => handleSeasonChange(Number(e.target.value))}
-                  className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                  className="rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-base text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 shadow-lg"
                 >
                   <option value={2023}>2023</option>
                   <option value={2024}>2024</option>
                 </select>
               </div>
               
-              <div>
-                <label htmlFor="position" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+              <div className="space-y-2">
+                <label htmlFor="position" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
                   Position
                 </label>
                 <select 
                   id="position"
                   value={position} 
                   onChange={(e) => handlePositionChange(e.target.value)}
-                  className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                  className="rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-base text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 shadow-lg"
                 >
                   <option value="">All Positions</option>
                   <option value="QB">QB</option>
@@ -368,15 +386,15 @@ export default function DraftAssistant() {
               </div>
               
               {(activeTab === 'recommendations' || activeTab === 'waivers') && (
-                <div>
-                  <label htmlFor="week" className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                <div className="space-y-2">
+                  <label htmlFor="week" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
                     Week
                   </label>
                   <select 
                     id="week"
                     value={week} 
                     onChange={(e) => setWeek(Number(e.target.value))}
-                    className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
+                    className="rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-base text-gray-900 dark:text-white focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 shadow-lg"
                   >
                     {Array.from({ length: 18 }, (_, i) => i + 1).map(w => (
                       <option key={w} value={w}>Week {w}</option>
@@ -386,212 +404,151 @@ export default function DraftAssistant() {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
+            {/* Enhanced Action Buttons */}
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowWatchlistOnly(!showWatchlistOnly)}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 text-sm shadow-lg hover:shadow-xl ${
                   showWatchlistOnly 
-                    ? 'bg-purple-600 text-white' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white transform scale-105' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {showWatchlistOnly ? 'Show All' : `Watchlist (${watchlist.size})`}
               </button>
+              
               <button
                 onClick={handleExportCSV}
-                className="px-3 py-2 rounded-lg font-medium transition-colors bg-green-600 text-white hover:bg-green-700 text-sm"
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
               >
                 Export CSV
               </button>
             </div>
           </div>
-
-          {/* Results Info */}
-          <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-            Showing {startIndex}-{endIndex} of {totalPlayers} players
-          </div>
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Loading rankings...
-            </p>
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="rounded-lg p-4 mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700">
-            <p className="text-red-800 dark:text-red-400">
-              Error: {error}
-            </p>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && !error && filteredPlayers.length === 0 && activeTab === 'rankings' && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">
-              {searchTerm ? `No players found matching "${searchTerm}".` : "No players found for the selected criteria."}
-            </p>
-          </div>
-        )}
-
-        {/* Content Tabs */}
-        {activeTab === 'rankings' && !loading && !error && filteredPlayers.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <PlayerTable 
-              players={filteredPlayers} 
-              selectedPosition={position}
-              onSort={handleSort}
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onPlayerClick={handlePlayerClick}
-              watchlist={watchlist}
-              onToggleWatchlist={handleToggleWatchlist}
-              showWatchlistOnly={showWatchlistOnly}
-            />
-          </div>
-        )}
-
-        {activeTab === 'draft' && !loading && draftPlayers.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <DraftRankingsTable 
-              players={draftPlayers} 
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              onPlayerClick={(player) => {
-                const playerForModal: Player = {
-                  name: player.name,
-                  position: player.position,
-                  team: player.team,
-                  total_points: player.total_points,
-                  games_played: Math.round(player.total_points / player.avg_points),
-                  avg_points: player.avg_points
-                };
-                setSelectedPlayer(playerForModal);
-                setIsModalOpen(true);
-              }}
-            />
-          </div>
-        )}
-
-        {activeTab === 'recommendations' && !loading && recommendations.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <RecommendationsTable 
-              players={recommendations} 
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              onPlayerClick={(player) => {
-                const playerForModal: Player = {
-                  name: player.name,
-                  position: player.position,
-                  team: player.team,
-                  total_points: player.weighted_avg * 18,
-                  games_played: 18,
-                  avg_points: player.weighted_avg
-                };
-                setSelectedPlayer(playerForModal);
-                setIsModalOpen(true);
-              }}
-            />
-          </div>
-        )}
-
-        {activeTab === 'waivers' && !loading && waivers.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <WaiversTable 
-              players={waivers} 
-              sortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-              onPlayerClick={(player) => {
-                const playerForModal: Player = {
-                  name: player.name,
-                  position: player.position,
-                  team: player.team,
-                  total_points: player.avg_points * 18,
-                  games_played: 18,
-                  avg_points: player.avg_points
-                };
-                setSelectedPlayer(playerForModal);
-                setIsModalOpen(true);
-              }}
-            />
-          </div>
-        )}
-
-        {/* Empty states for other tabs */}
-        {activeTab === 'draft' && !loading && draftPlayers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">
-              No draft rankings found for the selected criteria.
-            </p>
-          </div>
-        )}
-
-        {activeTab === 'recommendations' && !loading && recommendations.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">
-              No recommendations found for Week {week}.
-            </p>
-          </div>
-        )}
-
-        {activeTab === 'waivers' && !loading && waivers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-400">
-              No waiver recommendations found for Week {week}.
-            </p>
-          </div>
-        )}
-
-        {/* Other Tab Content */}
-        {activeTab === 'alerts' && <Alerts />}
-        {activeTab === 'season-planner' && <SeasonPlanner />}
-        {activeTab === 'trade-analyzer' && <TradeAnalyzer />}
-        {activeTab === 'simulator' && <Simulator />}
-        {activeTab === 'league-setup' && <LeagueSetup onComplete={() => setActiveTab('rankings')} />}
-
-        {/* Pagination */}
-        {!loading && !error && filteredPlayers.length > 0 && activeTab === 'rankings' && (
-          <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-xl">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => handlePageChange(offset - limit)}
-                disabled={!hasPrevPage || loading}
-                className="px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                ← Previous
-              </button>
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button 
-                onClick={() => handlePageChange(offset + limit)}
-                disabled={!hasNextPage || loading}
-                className="px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Next →
-              </button>
+        {/* Enhanced Content Area */}
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl overflow-hidden">
+          {loading ? (
+            <div className="flex items-center justify-center p-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
             </div>
-          </div>
-        )}
+          ) : error ? (
+            <div className="p-8 text-center">
+              <div className="text-red-600 dark:text-red-400 text-lg font-semibold">{error}</div>
+            </div>
+          ) : (
+            <>
+              {/* Enhanced Results Header */}
+              <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {activeTab === 'rankings' && 'Player Rankings'}
+                    {activeTab === 'draft' && 'Draft Rankings'}
+                    {activeTab === 'recommendations' && 'Start/Sit Recommendations'}
+                    {activeTab === 'waivers' && 'Waiver Wire'}
+                    {activeTab === 'alerts' && 'Alerts'}
+                    {activeTab === 'season-planner' && 'Season Planner'}
+                    {activeTab === 'trade-analyzer' && 'Trade Analyzer'}
+                    {activeTab === 'simulator' && 'Simulator'}
+                    {activeTab === 'league-setup' && 'League Setup'}
+                  </h2>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    Showing {startIndex}-{endIndex} of {totalPlayers} players
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Table Container */}
+              <div className="p-8">
+                {activeTab === 'rankings' && (
+                  <PlayerTable
+                    players={filteredPlayers}
+                    selectedPosition={position}
+                    onSort={handleSort}
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onPlayerClick={handlePlayerClick}
+                    watchlist={watchlist}
+                    onToggleWatchlist={handleToggleWatchlist}
+                    showWatchlistOnly={showWatchlistOnly}
+                  />
+                )}
+                
+                {activeTab === 'draft' && (
+                  <DraftRankingsTable
+                    players={draftPlayers}
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    onPlayerClick={handlePlayerClick}
+                  />
+                )}
+                
+                {activeTab === 'recommendations' && (
+                  <RecommendationsTable
+                    players={recommendations}
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    onPlayerClick={handlePlayerClick}
+                  />
+                )}
+                
+                {activeTab === 'waivers' && (
+                  <WaiversTable
+                    players={waivers}
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    onPlayerClick={handlePlayerClick}
+                  />
+                )}
+                
+                {activeTab === 'alerts' && <Alerts />}
+                {activeTab === 'season-planner' && <SeasonPlanner />}
+                {activeTab === 'trade-analyzer' && <TradeAnalyzer />}
+                {activeTab === 'simulator' && <Simulator />}
+                {activeTab === 'league-setup' && <LeagueSetup />}
+              </div>
+
+              {/* Enhanced Pagination */}
+              {activeTab === 'rankings' && (
+                <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handlePageChange(offset - limit)}
+                        disabled={!hasPrevPage}
+                        className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(offset + limit)}
+                        disabled={!hasNextPage}
+                        className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
-      {selectedPlayer && (
-        <PlayerModal
-          player={selectedPlayer}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
+      {/* Enhanced Modal */}
+      <PlayerModal
+        player={selectedPlayer}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 } 
