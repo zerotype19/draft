@@ -198,7 +198,7 @@ export default function DraftAssistant() {
 
         {!loading && !error && filteredPlayers.length > 0 && (
           <div className="rounded-xl shadow-lg overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-            <PlayerTable players={filteredPlayers} selectedPosition={position} darkMode={darkMode} />
+            <PlayerTable players={filteredPlayers} selectedPosition={position} />
           </div>
         )}
       </div>

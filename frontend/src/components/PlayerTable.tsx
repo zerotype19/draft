@@ -7,7 +7,6 @@ type SortDirection = 'asc' | 'desc';
 interface PlayerTableProps {
   players: Player[];
   selectedPosition?: string;
-  darkMode?: boolean;
 }
 
 // Position badge styling function with professional colors
@@ -25,7 +24,7 @@ function positionBadge(pos: string, isSelected: boolean = false) {
   return isSelected ? baseColor.replace('600', '700').replace('500', '600') : baseColor;
 }
 
-export default function PlayerTable({ players, selectedPosition, darkMode = true }: PlayerTableProps) {
+export default function PlayerTable({ players, selectedPosition }: PlayerTableProps) {
   const [sortField, setSortField] = useState<SortField>('total_points');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
