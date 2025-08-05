@@ -4,7 +4,7 @@ interface DraftRankingsTableProps {
   players: DraftPlayer[];
   sortColumn: string;
   sortDirection: 'asc' | 'desc';
-  onSort: (column: string) => void;
+  onSort: (column: string, direction: 'asc' | 'desc') => void;
   onPlayerClick?: (player: DraftPlayer) => void;
 }
 
@@ -55,37 +55,37 @@ export default function DraftRankingsTable({
             <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Team</th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('total_points')}
+              onClick={() => onSort('total_points', sortDirection)}
             >
               Total Points {sortColumn === 'total_points' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('avg_points')}
+              onClick={() => onSort('avg_points', sortDirection)}
             >
               Avg Points {sortColumn === 'avg_points' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('consistency_score')}
+              onClick={() => onSort('consistency_score', sortDirection)}
             >
               Consistency {sortColumn === 'consistency_score' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('boom_rate')}
+              onClick={() => onSort('boom_rate', sortDirection)}
             >
               Boom % {sortColumn === 'boom_rate' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('bust_rate')}
+              onClick={() => onSort('bust_rate', sortDirection)}
             >
               Bust % {sortColumn === 'bust_rate' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-center cursor-pointer hover:text-white"
-              onClick={() => onSort('tier')}
+              onClick={() => onSort('tier', sortDirection)}
             >
               Tier {sortColumn === 'tier' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>

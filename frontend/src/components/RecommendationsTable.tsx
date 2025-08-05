@@ -4,7 +4,7 @@ interface RecommendationsTableProps {
   players: RecommendationPlayer[];
   sortColumn: string;
   sortDirection: 'asc' | 'desc';
-  onSort: (column: string) => void;
+  onSort: (column: string, direction: 'asc' | 'desc') => void;
   onPlayerClick?: (player: RecommendationPlayer) => void;
 }
 
@@ -54,19 +54,19 @@ export default function RecommendationsTable({
             <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Team</th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('projected_points')}
+              onClick={() => onSort('projected_points', sortDirection)}
             >
               Projected {sortColumn === 'projected_points' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('weighted_avg')}
+              onClick={() => onSort('weighted_avg', sortDirection)}
             >
               Weighted Avg {sortColumn === 'weighted_avg' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-center cursor-pointer hover:text-white"
-              onClick={() => onSort('opponent_rank')}
+              onClick={() => onSort('opponent_rank', sortDirection)}
             >
               Opp Rank {sortColumn === 'opponent_rank' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>

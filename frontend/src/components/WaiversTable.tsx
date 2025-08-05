@@ -4,7 +4,7 @@ interface WaiversTableProps {
   players: WaiverPlayer[];
   sortColumn: string;
   sortDirection: 'asc' | 'desc';
-  onSort: (column: string) => void;
+  onSort: (column: string, direction: 'asc' | 'desc') => void;
   onPlayerClick?: (player: WaiverPlayer) => void;
 }
 
@@ -47,13 +47,13 @@ export default function WaiversTable({
             <th className="px-4 py-2 text-sm font-semibold text-gray-300 text-left">Team</th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('ros_projection')}
+              onClick={() => onSort('ros_projection', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               ROS Projection {sortColumn === 'ros_projection' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
             <th 
               className="px-4 py-2 text-sm font-semibold text-gray-300 text-right cursor-pointer hover:text-white"
-              onClick={() => onSort('avg_points')}
+              onClick={() => onSort('avg_points', sortDirection === 'asc' ? 'desc' : 'asc')}
             >
               Avg Points {sortColumn === 'avg_points' && (sortDirection === 'asc' ? '↑' : '↓')}
             </th>
