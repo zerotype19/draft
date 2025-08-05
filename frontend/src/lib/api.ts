@@ -117,6 +117,19 @@ export interface SimulationResponse {
   optimalLineup?: PlayerImpact[];
 }
 
+export interface Alert {
+  type: 'injury' | 'bad_matchup' | 'waiver_opportunity' | 'cold_streak' | 'lineup_optimization';
+  player: string;
+  detail: string;
+  impact: string;
+  projected_gain?: number;
+  suggested_move?: {
+    action: 'add' | 'remove' | 'swap';
+    player_id?: string;
+    swap_with_player_id?: string;
+  };
+}
+
 export async function getRankings(
   season?: number, 
   position?: string, 
@@ -232,6 +245,27 @@ export async function simulateRoster(
 
   if (!response.ok) {
     throw new Error(`Failed to simulate roster: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function getAlerts(
+  week: number,
+  roster: string[],
+  starters: string[],
+  scoring?: string,
+  includeInjuries?: boolean
+): Promise<Alert[]> {
+  const params = new URLSearchParams();
+  params.append('week', week.toString());
+  params.append('roster', roster.join(','));
+  params.append('starters', starters.join(','));
+  if (scoring) params.append('scoring', scoring);
+  if (includeInjuries !== undefined) params.append('includeInjuries', includeInjuries.toString());
+
+  const response = await fetch(`${API_BASE}/alerts?${params}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch alerts: ${response.statusText}`);
   }
   return response.json();
 } 

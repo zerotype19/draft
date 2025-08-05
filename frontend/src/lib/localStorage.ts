@@ -23,6 +23,7 @@ export interface LeagueSettings {
     fumble_lost_points: number;
   };
   roster: string[]; // Array of player_ids
+  starters: string[]; // Array of player_ids who are starters
   includeInjuries: boolean; // Enhanced predictive modeling setting
 }
 
@@ -90,6 +91,24 @@ export function saveRoster(roster: string[]): void {
     localStorage.setItem('roster', JSON.stringify(roster));
   } catch (error) {
     console.error('Error saving roster:', error);
+  }
+}
+
+export function getStarters(): string[] {
+  try {
+    const stored = localStorage.getItem('starters');
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Error reading starters:', error);
+    return [];
+  }
+}
+
+export function saveStarters(starters: string[]): void {
+  try {
+    localStorage.setItem('starters', JSON.stringify(starters));
+  } catch (error) {
+    console.error('Error saving starters:', error);
   }
 }
 

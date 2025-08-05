@@ -7,6 +7,7 @@ import { getDraftRankings } from "./draft-rankings";
 import { getRecommendations } from "./recommendations";
 import { getWaivers } from "./waivers";
 import { simulateRoster } from "./simulator";
+import { getAlerts } from "./alerts";
 import { corsHeaders } from "./cors";
 
 export default {
@@ -226,6 +227,48 @@ export default {
       } catch (error) {
         console.error("Waivers error:", error);
         return new Response(`Waivers failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/alerts") {
+      try {
+        const week = url.searchParams.get("week");
+        const scoring = url.searchParams.get("scoring");
+        const roster = url.searchParams.get("roster");
+        const starters = url.searchParams.get("starters");
+        const includeInjuries = url.searchParams.get("includeInjuries");
+
+        if (!week) {
+          return new Response("Week parameter is required", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        if (!roster) {
+          return new Response("Roster parameter is required", { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "text/plain" }
+          });
+        }
+
+        const alerts = await getAlerts(env, {
+          week: Number(week),
+          roster: roster.split(','),
+          starters: starters ? starters.split(',') : [],
+          scoring: scoring || undefined,
+          includeInjuries: includeInjuries !== "false"
+        });
+
+        return new Response(JSON.stringify(alerts), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Alerts error:", error);
+        return new Response(`Alerts failed: ${error}`, { 
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "text/plain" }
         });
