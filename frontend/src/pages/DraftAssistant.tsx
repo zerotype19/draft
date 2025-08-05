@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getRankings } from '../lib/api';
 import type { Player } from '../lib/api';
 import PlayerTable from '../components/PlayerTable';

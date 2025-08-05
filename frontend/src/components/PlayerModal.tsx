@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Player } from '../lib/api';
 
 interface PlayerModalProps {
@@ -85,7 +84,7 @@ export default function PlayerModal({ player, isOpen, onClose }: PlayerModalProp
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Weekly Performance</h3>
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <div className="flex items-end justify-between h-32 gap-1">
-                {weeklyStats.map((stat, index) => {
+                {weeklyStats.map((stat) => {
                   const height = ((stat.points - minPoints) / (maxPoints - minPoints)) * 100;
                   const isHigh = stat.points >= 25;
                   const isLow = stat.points <= 15;
