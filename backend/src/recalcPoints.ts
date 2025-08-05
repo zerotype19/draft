@@ -43,16 +43,21 @@ export async function recalcPoints(env: Env) {
       (row.receiving_tds || 0) * settings.receiving_td_points +
       (row.fumbles_lost || 0) * settings.fumble_lost_points;
 
-    await env.DB.prepare(
-      `INSERT INTO stats_custom_scored (season, week, player_id, total_points)
-       VALUES (?, ?, ?, ?)`
-    ).bind(row.season, row.week, row.player_id, totalPoints).run();
+    try {
+      await env.DB.prepare(
+        `INSERT INTO stats_custom_scored (season, week, player_id, total_points)
+         VALUES (?, ?, ?, ?)`
+      ).bind(row.season, row.week, row.player_id, totalPoints).run();
 
-    processedCount++;
-    
-    // Log progress every 1000 rows
-    if (processedCount % 1000 === 0) {
-      console.log(`Processed ${processedCount} of ${totalRows} rows...`);
+      processedCount++;
+      
+      // Log progress every 1000 rows
+      if (processedCount % 1000 === 0) {
+        console.log(`Processed ${processedCount} of ${totalRows} rows...`);
+      }
+    } catch (error) {
+      console.error(`Error processing row ${processedCount + 1}:`, error);
+      // Continue processing other rows
     }
   }
 
