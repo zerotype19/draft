@@ -19,7 +19,8 @@ export async function getRankings(
   params.append("offset", String(offset));
   if (position) params.append("position", position);
 
-  const res = await fetch(`/api/rankings?${params.toString()}`);
+  // Use the full Worker URL directly
+  const res = await fetch(`https://draft-api.kevin-mcgovern.workers.dev/api/rankings?${params.toString()}`);
   if (!res.ok) throw new Error(`Failed to fetch rankings: ${res.statusText}`);
   return res.json();
 } 
