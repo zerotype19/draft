@@ -1,0 +1,18 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "main": "importLocal.js",
+  "type": "module",
+  "scripts": {
+    "import": "node importLocal.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Local import scripts for NFLverse data",
+  "dependencies": {
+    "node-fetch": "^2.7.0",
+    "papaparse": "^5.5.3"
+  }
+}
