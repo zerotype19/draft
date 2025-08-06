@@ -566,7 +566,7 @@ export default function DraftAssistant() {
                 
                 {activeTab === 'draft' && (
                   <DraftRankingsTable
-                    players={draftPlayers}
+                    players={filteredPlayers}
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
@@ -576,7 +576,7 @@ export default function DraftAssistant() {
                 
                 {activeTab === 'recommendations' && (
                   <RecommendationsTable
-                    players={recommendations}
+                    players={filteredPlayers}
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
@@ -586,7 +586,7 @@ export default function DraftAssistant() {
                 
                 {activeTab === 'waivers' && (
                   <WaiversTable
-                    players={waivers}
+                    players={filteredPlayers}
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
