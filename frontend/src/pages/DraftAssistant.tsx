@@ -105,6 +105,13 @@ export default function DraftAssistant() {
     // Use a larger limit when searching to ensure we have more data to search through
     const searchLimit = searchTerm.trim() ? 500 : limit;
     
+    console.log('🔍 Making API call to getRankings:', {
+      season,
+      position,
+      searchLimit,
+      url: `https://draft-api.kevin-mcgovern.workers.dev/api/rankings?season=${season}&position=${position}&limit=${searchLimit}&offset=0`
+    });
+    
     getRankings(season, position, searchLimit, 0)
       .then((data) => {
         console.log('📊 Rankings data loaded:', {
@@ -113,13 +120,21 @@ export default function DraftAssistant() {
           firstPlayer: data.results[0]?.name,
           searchTerm,
           season,
-          position
+          position,
+          fullResponse: data
         });
         setPlayers(data.results);
         setTotalPlayers(data.total_count);
       })
       .catch((err) => {
         console.error('❌ Error loading rankings:', err);
+        console.error('❌ Error details:', {
+          message: err.message,
+          stack: err.stack,
+          season,
+          position,
+          searchLimit
+        });
         setError(err.message);
       })
       .finally(() => setLoading(false));
@@ -130,6 +145,15 @@ export default function DraftAssistant() {
     if (activeTab === 'rankings' && players.length === 0) {
       setLoading(true);
       const searchLimit = searchTerm.trim() ? 500 : limit;
+      console.log('🔍 Making API call to getRankings (rankings tab):', {
+        season,
+        position,
+        searchLimit,
+        activeTab,
+        playersLength: players.length,
+        url: `https://draft-api.kevin-mcgovern.workers.dev/api/rankings?season=${season}&position=${position}&limit=${searchLimit}&offset=0`
+      });
+      
       getRankings(season, position, searchLimit, 0)
         .then((data) => {
           console.log('📊 Rankings data loaded (rankings tab):', {
@@ -137,13 +161,22 @@ export default function DraftAssistant() {
             total: data.total_count,
             firstPlayer: data.results[0]?.name,
             activeTab,
-            playersLength: players.length
+            playersLength: players.length,
+            fullResponse: data
           });
           setPlayers(data.results);
           setTotalPlayers(data.total_count);
         })
         .catch((err) => {
           console.error('❌ Error loading rankings (rankings tab):', err);
+          console.error('❌ Error details (rankings tab):', {
+            message: err.message,
+            stack: err.stack,
+            season,
+            position,
+            searchLimit,
+            activeTab
+          });
           setError(err.message);
         })
         .finally(() => setLoading(false));
