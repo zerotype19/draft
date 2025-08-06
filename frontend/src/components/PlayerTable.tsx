@@ -40,6 +40,15 @@ export default function PlayerTable({
   onToggleWatchlist,
   showWatchlistOnly
 }: PlayerTableProps) {
+  
+  // Debug logging
+  if (players.length > 0) {
+    console.log('PlayerTable received:', {
+      playerCount: players.length,
+      firstPlayer: players[0]?.name,
+      allPlayerNames: players.map(p => p.name)
+    });
+  }
   const handleSort = (field: SortField) => {
     if (sortColumn === field) {
       onSort(field, sortDirection === 'asc' ? 'desc' : 'asc');

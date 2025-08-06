@@ -337,6 +337,15 @@ export default function DraftAssistant() {
     return matchesSearch && matchesWatchlist;
   });
 
+  // When searching, use filtered results for pagination
+  const isSearching = searchTerm.trim().length > 0;
+  const startIndex = isSearching ? 1 : offset + 1;
+  const endIndex = isSearching ? filteredPlayers.length : offset + filteredPlayers.length;
+  const hasNextPage = isSearching ? false : filteredPlayers.length === limit;
+  const hasPrevPage = isSearching ? false : offset > 0;
+  const totalPages = isSearching ? 1 : Math.ceil(totalPlayers / limit);
+  const currentPage = isSearching ? 1 : Math.floor(offset / limit) + 1;
+
   // Debug logging for search results
   if (searchTerm.toLowerCase() === 'kelce') {
     console.log('Search debug:', {
@@ -346,18 +355,13 @@ export default function DraftAssistant() {
       allData: getAllData().length,
       filteredCount: filteredPlayers.length,
       currentTabPlayerNames: getCurrentData().map(p => p.name).slice(0, 5),
-      allPlayerNames: getAllData().map(p => p.name).slice(0, 10)
+      allPlayerNames: getAllData().map(p => p.name).slice(0, 10),
+      filteredPlayerNames: filteredPlayers.map(p => p.name),
+      isSearching,
+      startIndex,
+      endIndex
     });
   }
-
-  // When searching, use filtered results for pagination
-  const isSearching = searchTerm.trim().length > 0;
-  const startIndex = isSearching ? 1 : offset + 1;
-  const endIndex = isSearching ? filteredPlayers.length : offset + filteredPlayers.length;
-  const hasNextPage = isSearching ? false : filteredPlayers.length === limit;
-  const hasPrevPage = isSearching ? false : offset > 0;
-  const totalPages = isSearching ? 1 : Math.ceil(totalPlayers / limit);
-  const currentPage = isSearching ? 1 : Math.floor(offset / limit) + 1;
 
   // Tab configuration
   const tabs = [
@@ -582,7 +586,9 @@ export default function DraftAssistant() {
               <div className="p-8">
                 {activeTab === 'rankings' && (
                   <PlayerTable
-                    players={filteredPlayers as Player[]}
+                    players={filteredPlayers.filter((player): player is Player => 
+                      'total_points' in player && 'games_played' in player && 'avg_points' in player
+                    )}
                     selectedPosition={position}
                     onSort={handleSort}
                     sortColumn={sortColumn}
