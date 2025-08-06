@@ -59,6 +59,59 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
     }, 1500);
   };
 
+  // Helper function to create search-friendly player names (same as DraftAssistant)
+  const createSearchableName = (playerName: string): string[] => {
+    const searchVariants = [playerName.toLowerCase()];
+    
+    // Common name mappings for better search
+    const nameMappings: Record<string, string[]> = {
+      'T.Kelce': ['travis kelce', 'kelce'],
+      'P.Mahomes': ['patrick mahomes', 'mahomes'],
+      'J.Allen': ['josh allen', 'allen'],
+      'L.Jackson': ['lamar jackson', 'jackson'],
+      'J.Hurts': ['jalen hurts', 'hurts'],
+      'J.Burrow': ['joe burrow', 'burrow'],
+      'J.Goff': ['jared goff', 'goff'],
+      'K.Murray': ['kyler murray', 'murray'],
+      'S.Barkley': ['saquon barkley', 'barkley'],
+      'J.Gibbs': ['jahmyr gibbs', 'gibbs'],
+      'D.Henry': ['derrick henry', 'henry'],
+      'B.Robinson': ['bijan robinson', 'robinson'],
+      'J.Chase': ['ja\'marr chase', 'chase'],
+      'A.St. Brown': ['amon-ra st. brown', 'st. brown', 'brown'],
+      'J.Jefferson': ['justin jefferson', 'jefferson'],
+      'T.McLaurin': ['terry mclaurin', 'mclaurin'],
+      'J.Cook': ['james cook', 'cook'],
+      'B.Mayfield': ['baker mayfield', 'mayfield'],
+      'J.Daniels': ['jayden daniels', 'daniels'],
+      'S.Darnold': ['sam darnold', 'darnold'],
+      'B.Nix': ['bo nix', 'nix'],
+    };
+
+    // Add mapped variants if they exist
+    if (nameMappings[playerName]) {
+      searchVariants.push(...nameMappings[playerName]);
+    }
+
+    // Also add partial matches (last name only)
+    const parts = playerName.split('.');
+    if (parts.length > 1) {
+      searchVariants.push(parts[1].toLowerCase());
+    }
+
+    return searchVariants;
+  };
+
+  // Enhanced search function (same as DraftAssistant)
+  const playerMatchesSearch = (player: Player, searchTerm: string): boolean => {
+    if (!searchTerm.trim()) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const searchableNames = createSearchableName(player.name);
+    
+    return searchableNames.some(name => name.includes(searchLower));
+  };
+
   const handleRosterSearch = async (query: string) => {
     setRosterSearch(query);
     
@@ -69,10 +122,10 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
 
     setIsSearching(true);
     try {
-      const response = await getRankings(2024, undefined, 50, 0);
-      const filtered = response.results.filter(player =>
-        player.name.toLowerCase().includes(query.toLowerCase())
-      );
+      // Load more data when searching (same as DraftAssistant)
+      const searchLimit = query.trim() ? 500 : 50;
+      const response = await getRankings(2024, undefined, searchLimit, 0);
+      const filtered = response.results.filter(player => playerMatchesSearch(player, query));
       setSearchResults(filtered.slice(0, 10)); // Limit to 10 results
     } catch (error) {
       console.error('Error searching players:', error);
