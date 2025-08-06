@@ -96,6 +96,7 @@ export default function DraftAssistant() {
     if (newSortDirection) localStorage.setItem('draft-sort-direction', newSortDirection);
   };
 
+  // Load rankings data on mount and when filters change
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -106,12 +107,48 @@ export default function DraftAssistant() {
     
     getRankings(season, position, searchLimit, 0)
       .then((data) => {
+        console.log('📊 Rankings data loaded:', {
+          count: data.results.length,
+          total: data.total_count,
+          firstPlayer: data.results[0]?.name,
+          searchTerm,
+          season,
+          position
+        });
         setPlayers(data.results);
         setTotalPlayers(data.total_count);
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        console.error('❌ Error loading rankings:', err);
+        setError(err.message);
+      })
       .finally(() => setLoading(false));
   }, [season, position, searchTerm]);
+
+  // Ensure rankings data is loaded when rankings tab is active
+  useEffect(() => {
+    if (activeTab === 'rankings' && players.length === 0) {
+      setLoading(true);
+      const searchLimit = searchTerm.trim() ? 500 : limit;
+      getRankings(season, position, searchLimit, 0)
+        .then((data) => {
+          console.log('📊 Rankings data loaded (rankings tab):', {
+            count: data.results.length,
+            total: data.total_count,
+            firstPlayer: data.results[0]?.name,
+            activeTab,
+            playersLength: players.length
+          });
+          setPlayers(data.results);
+          setTotalPlayers(data.total_count);
+        })
+        .catch((err) => {
+          console.error('❌ Error loading rankings (rankings tab):', err);
+          setError(err.message);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [activeTab, season, position, searchTerm, players.length]);
 
   // Always load rankings data for League Setup search functionality
   useEffect(() => {
