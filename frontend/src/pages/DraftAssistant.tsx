@@ -566,7 +566,7 @@ export default function DraftAssistant() {
                 
                 {activeTab === 'draft' && (
                   <DraftRankingsTable
-                    players={filteredPlayers}
+                    players={filteredPlayers.filter((player): player is DraftPlayer => 'consistency_score' in player)}
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
@@ -576,7 +576,7 @@ export default function DraftAssistant() {
                 
                 {activeTab === 'recommendations' && (
                   <RecommendationsTable
-                    players={filteredPlayers}
+                    players={filteredPlayers.filter((player): player is RecommendationPlayer => 'season_avg' in player)}
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
@@ -586,7 +586,7 @@ export default function DraftAssistant() {
                 
                 {activeTab === 'waivers' && (
                   <WaiversTable
-                    players={filteredPlayers}
+                    players={filteredPlayers.filter((player): player is WaiverPlayer => 'ros_projection' in player)}
                     sortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
