@@ -299,8 +299,22 @@ export default function DraftAssistant() {
     return searchableNames.some(name => name.includes(searchLower));
   };
 
+  // Get the appropriate data array based on active tab
+  const getCurrentData = () => {
+    switch (activeTab) {
+      case 'draft':
+        return draftPlayers;
+      case 'recommendations':
+        return recommendations;
+      case 'waivers':
+        return waivers;
+      default:
+        return players;
+    }
+  };
+
   // Filter players based on search term and watchlist
-  const filteredPlayers = players.filter(player => {
+  const filteredPlayers = getCurrentData().filter(player => {
     const matchesSearch = playerMatchesSearch(player, searchTerm);
     const matchesWatchlist = !showWatchlistOnly || watchlist.has(player.name);
     return matchesSearch && matchesWatchlist;
