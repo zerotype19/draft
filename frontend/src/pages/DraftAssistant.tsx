@@ -298,6 +298,16 @@ export default function DraftAssistant() {
     const searchLower = searchTerm.toLowerCase();
     const searchableNames = createSearchableName(player.name);
     
+    // Debug logging for search
+    if (searchTerm.toLowerCase() === 'kelce') {
+      console.log('Searching for kelce:', {
+        playerName: player.name,
+        searchableNames,
+        searchLower,
+        matches: searchableNames.some(name => name.includes(searchLower))
+      });
+    }
+    
     return searchableNames.some(name => name.includes(searchLower));
   };
 
@@ -315,12 +325,30 @@ export default function DraftAssistant() {
     }
   };
 
+  // Get all available data for cross-tab search
+  const getAllData = () => {
+    return [...players, ...draftPlayers, ...recommendations, ...waivers];
+  };
+
   // Filter players based on search term and watchlist
-  const filteredPlayers = getCurrentData().filter(player => {
+  const filteredPlayers = (searchTerm.trim() ? getAllData() : getCurrentData()).filter(player => {
     const matchesSearch = playerMatchesSearch(player, searchTerm);
     const matchesWatchlist = !showWatchlistOnly || watchlist.has(player.name);
     return matchesSearch && matchesWatchlist;
   });
+
+  // Debug logging for search results
+  if (searchTerm.toLowerCase() === 'kelce') {
+    console.log('Search debug:', {
+      searchTerm,
+      activeTab,
+      currentTabData: getCurrentData().length,
+      allData: getAllData().length,
+      filteredCount: filteredPlayers.length,
+      currentTabPlayerNames: getCurrentData().map(p => p.name).slice(0, 5),
+      allPlayerNames: getAllData().map(p => p.name).slice(0, 10)
+    });
+  }
 
   const startIndex = offset + 1;
   const endIndex = offset + filteredPlayers.length;
