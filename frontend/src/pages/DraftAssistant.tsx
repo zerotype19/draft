@@ -20,7 +20,7 @@ export default function DraftAssistant() {
     return saved ? parseInt(saved) : 2024;
   });
   const [position, setPosition] = useState(() => {
-    return localStorage.getItem('draft-position') || "";
+    return localStorage.getItem('draft-position') || "All Positions";
   });
   const [players, setPlayers] = useState<Player[]>([]);
   const [draftPlayers, setDraftPlayers] = useState<DraftPlayer[]>([]);
