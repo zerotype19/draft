@@ -350,12 +350,14 @@ export default function DraftAssistant() {
     });
   }
 
-  const startIndex = offset + 1;
-  const endIndex = offset + filteredPlayers.length;
-  const hasNextPage = filteredPlayers.length === limit;
-  const hasPrevPage = offset > 0;
-  const totalPages = Math.ceil(totalPlayers / limit);
-  const currentPage = Math.floor(offset / limit) + 1;
+  // When searching, use filtered results for pagination
+  const isSearching = searchTerm.trim().length > 0;
+  const startIndex = isSearching ? 1 : offset + 1;
+  const endIndex = isSearching ? filteredPlayers.length : offset + filteredPlayers.length;
+  const hasNextPage = isSearching ? false : filteredPlayers.length === limit;
+  const hasPrevPage = isSearching ? false : offset > 0;
+  const totalPages = isSearching ? 1 : Math.ceil(totalPlayers / limit);
+  const currentPage = isSearching ? 1 : Math.floor(offset / limit) + 1;
 
   // Tab configuration
   const tabs = [
@@ -571,7 +573,7 @@ export default function DraftAssistant() {
                     {activeTab === 'league-setup' && 'League Setup'}
                   </h2>
                   <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                    Showing {startIndex}-{endIndex} of {totalPlayers} players
+                    Showing {startIndex}-{endIndex} of {isSearching ? filteredPlayers.length : totalPlayers} players
                   </div>
                 </div>
               </div>
@@ -630,7 +632,7 @@ export default function DraftAssistant() {
               </div>
 
               {/* Enhanced Pagination */}
-              {activeTab === 'rankings' && (
+              {activeTab === 'rankings' && !isSearching && (
                 <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-600 dark:text-gray-400">
