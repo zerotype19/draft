@@ -246,50 +246,6 @@ export default function DraftAssistant() {
     }
   };
 
-  // Filter players based on search term and watchlist
-  const filteredPlayers = players.filter(player => {
-    const matchesSearch = playerMatchesSearch(player, searchTerm);
-    const matchesWatchlist = !showWatchlistOnly || watchlist.has(player.name);
-    return matchesSearch && matchesWatchlist;
-  });
-
-  const startIndex = offset + 1;
-  const endIndex = offset + filteredPlayers.length;
-  const hasNextPage = filteredPlayers.length === limit;
-  const hasPrevPage = offset > 0;
-  const totalPages = Math.ceil(totalPlayers / limit);
-  const currentPage = Math.floor(offset / limit) + 1;
-
-  // Tab configuration
-  const tabs = [
-    { id: 'rankings', label: 'Rankings' },
-    { id: 'draft', label: 'Draft Prep' },
-    { id: 'recommendations', label: 'Start/Sit' },
-    { id: 'waivers', label: 'Waivers' },
-    { id: 'alerts', label: 'Alerts' },
-    { id: 'season-planner', label: 'Season Planner' },
-    { id: 'trade-analyzer', label: 'Trade Analyzer' },
-    { id: 'simulator', label: 'Simulator' },
-    { id: 'league-setup', label: 'League Setup' }
-  ];
-
-  // Helper function to convert different player types to Player for modal
-  const convertToPlayerForModal = (player: any): Player => {
-    if ('total_points' in player && 'games_played' in player && 'avg_points' in player) {
-      return player as Player;
-    }
-    
-    // For draft players, recommendations, and waivers, create a Player object
-    return {
-      name: player.name,
-      position: player.position,
-      team: player.team,
-      total_points: player.total_points || player.avg_points * 18 || 0,
-      games_played: player.games_played || 18,
-      avg_points: player.avg_points || 0
-    };
-  };
-
   // Helper function to create search-friendly player names
   const createSearchableName = (playerName: string): string[] => {
     const searchVariants = [playerName.toLowerCase()];
@@ -341,6 +297,50 @@ export default function DraftAssistant() {
     const searchableNames = createSearchableName(player.name);
     
     return searchableNames.some(name => name.includes(searchLower));
+  };
+
+  // Filter players based on search term and watchlist
+  const filteredPlayers = players.filter(player => {
+    const matchesSearch = playerMatchesSearch(player, searchTerm);
+    const matchesWatchlist = !showWatchlistOnly || watchlist.has(player.name);
+    return matchesSearch && matchesWatchlist;
+  });
+
+  const startIndex = offset + 1;
+  const endIndex = offset + filteredPlayers.length;
+  const hasNextPage = filteredPlayers.length === limit;
+  const hasPrevPage = offset > 0;
+  const totalPages = Math.ceil(totalPlayers / limit);
+  const currentPage = Math.floor(offset / limit) + 1;
+
+  // Tab configuration
+  const tabs = [
+    { id: 'rankings', label: 'Rankings' },
+    { id: 'draft', label: 'Draft Prep' },
+    { id: 'recommendations', label: 'Start/Sit' },
+    { id: 'waivers', label: 'Waivers' },
+    { id: 'alerts', label: 'Alerts' },
+    { id: 'season-planner', label: 'Season Planner' },
+    { id: 'trade-analyzer', label: 'Trade Analyzer' },
+    { id: 'simulator', label: 'Simulator' },
+    { id: 'league-setup', label: 'League Setup' }
+  ];
+
+  // Helper function to convert different player types to Player for modal
+  const convertToPlayerForModal = (player: any): Player => {
+    if ('total_points' in player && 'games_played' in player && 'avg_points' in player) {
+      return player as Player;
+    }
+    
+    // For draft players, recommendations, and waivers, create a Player object
+    return {
+      name: player.name,
+      position: player.position,
+      team: player.team,
+      total_points: player.total_points || player.avg_points * 18 || 0,
+      games_played: player.games_played || 18,
+      avg_points: player.avg_points || 0
+    };
   };
 
   return (
