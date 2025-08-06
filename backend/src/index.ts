@@ -11,6 +11,7 @@ import { getAlerts } from "./alerts";
 import { getSeasonStrategy } from "./season-strategy";
 import { analyzeTrade } from "./trade-analyzer";
 import { corsHeaders } from "./cors";
+import { checkAndUpdateStats } from "./data-sync";
 
 export default {
   async fetch(req: Request, env: Env) {
@@ -96,6 +97,36 @@ export default {
       } catch (error) {
         console.error("Recalc points error:", error);
         return new Response(`Recalc failed: ${error}`, { 
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+    }
+
+    if (url.pathname === "/api/check-updates") {
+      // Simple API key check for admin access
+      const apiKey = req.headers.get('x-api-key');
+      if (!apiKey || apiKey !== 'draft-admin-2024') {
+        return new Response("Unauthorized", { 
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" }
+        });
+      }
+
+      try {
+        const dryRun = url.searchParams.get('dryRun') === 'true';
+        const results = await checkAndUpdateStats(env, dryRun);
+        
+        return new Response(JSON.stringify({
+          status: 'Update check complete',
+          dryRun,
+          results
+        }), { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        });
+      } catch (error) {
+        console.error("Check updates error:", error);
+        return new Response(`Update check failed: ${error}`, { 
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "text/plain" }
         });
@@ -389,5 +420,15 @@ export default {
       status: 404,
       headers: { ...corsHeaders, "Content-Type": "text/plain" }
     });
+  },
+
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+    console.log('⏰ Running scheduled stats update check...');
+    try {
+      const results = await checkAndUpdateStats(env, false);
+      console.log('📊 Scheduled update complete:', results);
+    } catch (error) {
+      console.error('❌ Scheduled update failed:', error);
+    }
   }
 }; 

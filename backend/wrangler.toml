@@ -2,6 +2,9 @@ name = "draft-api"
 main = "src/index.ts"
 compatibility_date = "2025-08-05"
 
+[triggers]
+crons = ["0 12 * * 3"] # Every Wednesday at 12:00 UTC
+
 [[d1_databases]]
 binding = "DB"
 database_name = "draft-db"
