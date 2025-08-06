@@ -101,20 +101,24 @@ export default function DraftAssistant() {
     setError(null);
     setOffset(0); // Reset to first page when filters change
     
-    getRankings(season, position, limit, 0)
+    // Use a larger limit when searching to ensure we have more data to search through
+    const searchLimit = searchTerm.trim() ? 500 : limit;
+    
+    getRankings(season, position, searchLimit, 0)
       .then((data) => {
         setPlayers(data.results);
         setTotalPlayers(data.total_count);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [season, position]);
+  }, [season, position, searchTerm]);
 
   // Load draft rankings when tab is active
   useEffect(() => {
     if (activeTab === 'draft') {
       setLoading(true);
-      getDraftRankings(season, position, limit, 0)
+      const searchLimit = searchTerm.trim() ? 500 : limit;
+      getDraftRankings(season, position, searchLimit, 0)
         .then((data) => {
           setDraftPlayers(data.results);
           setTotalPlayers(data.total_count);
@@ -122,13 +126,14 @@ export default function DraftAssistant() {
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
     }
-  }, [activeTab, season, position]);
+  }, [activeTab, season, position, searchTerm]);
 
   // Load recommendations when tab is active
   useEffect(() => {
     if (activeTab === 'recommendations') {
       setLoading(true);
-      getRecommendations(week, position, limit)
+      const searchLimit = searchTerm.trim() ? 500 : limit;
+      getRecommendations(week, position, searchLimit)
         .then((data) => {
           setRecommendations(data.results);
           setTotalPlayers(data.total_count);
@@ -136,13 +141,14 @@ export default function DraftAssistant() {
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
     }
-  }, [activeTab, week, position]);
+  }, [activeTab, week, position, searchTerm]);
 
   // Load waivers when tab is active
   useEffect(() => {
     if (activeTab === 'waivers') {
       setLoading(true);
-      getWaivers(week, position, limit)
+      const searchLimit = searchTerm.trim() ? 500 : limit;
+      getWaivers(week, position, searchLimit)
         .then((data) => {
           setWaivers(data.results);
           setTotalPlayers(data.total_count);
@@ -150,7 +156,7 @@ export default function DraftAssistant() {
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
     }
-  }, [activeTab, week, position]);
+  }, [activeTab, week, position, searchTerm]);
 
   // Keyboard event listener for modal
   useEffect(() => {
