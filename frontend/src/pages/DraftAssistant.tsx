@@ -248,7 +248,7 @@ export default function DraftAssistant() {
 
   // Filter players based on search term and watchlist
   const filteredPlayers = players.filter(player => {
-    const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = playerMatchesSearch(player, searchTerm);
     const matchesWatchlist = !showWatchlistOnly || watchlist.has(player.name);
     return matchesSearch && matchesWatchlist;
   });
@@ -288,6 +288,59 @@ export default function DraftAssistant() {
       games_played: player.games_played || 18,
       avg_points: player.avg_points || 0
     };
+  };
+
+  // Helper function to create search-friendly player names
+  const createSearchableName = (playerName: string): string[] => {
+    const searchVariants = [playerName.toLowerCase()];
+    
+    // Common name mappings for better search
+    const nameMappings: Record<string, string[]> = {
+      'T.Kelce': ['travis kelce', 'kelce'],
+      'P.Mahomes': ['patrick mahomes', 'mahomes'],
+      'J.Allen': ['josh allen', 'allen'],
+      'L.Jackson': ['lamar jackson', 'jackson'],
+      'J.Hurts': ['jalen hurts', 'hurts'],
+      'J.Burrow': ['joe burrow', 'burrow'],
+      'J.Goff': ['jared goff', 'goff'],
+      'K.Murray': ['kyler murray', 'murray'],
+      'S.Barkley': ['saquon barkley', 'barkley'],
+      'J.Gibbs': ['jahmyr gibbs', 'gibbs'],
+      'D.Henry': ['derrick henry', 'henry'],
+      'B.Robinson': ['bijan robinson', 'robinson'],
+      'J.Chase': ['ja\'marr chase', 'chase'],
+      'A.St. Brown': ['amon-ra st. brown', 'st. brown', 'brown'],
+      'J.Jefferson': ['justin jefferson', 'jefferson'],
+      'T.McLaurin': ['terry mclaurin', 'mclaurin'],
+      'J.Cook': ['james cook', 'cook'],
+      'B.Mayfield': ['baker mayfield', 'mayfield'],
+      'J.Daniels': ['jayden daniels', 'daniels'],
+      'S.Darnold': ['sam darnold', 'darnold'],
+      'B.Nix': ['bo nix', 'nix'],
+    };
+
+    // Add mapped variants if they exist
+    if (nameMappings[playerName]) {
+      searchVariants.push(...nameMappings[playerName]);
+    }
+
+    // Also add partial matches (last name only)
+    const parts = playerName.split('.');
+    if (parts.length > 1) {
+      searchVariants.push(parts[1].toLowerCase());
+    }
+
+    return searchVariants;
+  };
+
+  // Enhanced search function
+  const playerMatchesSearch = (player: any, searchTerm: string): boolean => {
+    if (!searchTerm.trim()) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    const searchableNames = createSearchableName(player.name);
+    
+    return searchableNames.some(name => name.includes(searchLower));
   };
 
   return (
@@ -361,6 +414,9 @@ export default function DraftAssistant() {
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-full sm:w-80 pl-12 pr-4 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-base focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-200 shadow-lg"
               />
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                💡 Try searching for full names like "Travis Kelce" or "Patrick Mahomes"
+              </p>
             </div>
           </div>
 
