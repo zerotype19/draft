@@ -214,9 +214,11 @@ export default function DraftAssistant() {
         player.name,
         player.position,
         player.team,
-        player.total_points,
-        player.games_played,
-        player.avg_points
+        // Handle different player types for CSV export
+        'total_points' in player ? player.total_points : 
+        'avg_points' in player ? player.avg_points * 18 : 0,
+        'games_played' in player ? player.games_played : 18,
+        'avg_points' in player ? player.avg_points : 0
       ].join(','))
     ].join('\n');
 
@@ -550,7 +552,7 @@ export default function DraftAssistant() {
               <div className="p-8">
                 {activeTab === 'rankings' && (
                   <PlayerTable
-                    players={filteredPlayers}
+                    players={filteredPlayers as Player[]}
                     selectedPosition={position}
                     onSort={handleSort}
                     sortColumn={sortColumn}
