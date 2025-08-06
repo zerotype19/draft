@@ -8,14 +8,14 @@ import {
   saveRoster
 } from '../lib/localStorage';
 import type { LeagueSettings } from '../lib/localStorage';
-import { getRankings } from '../lib/api';
 import type { Player } from '../lib/api';
 
 interface LeagueSetupProps {
   onComplete: () => void;
+  availablePlayers?: Player[]; // Add prop for player data
 }
 
-export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
+export default function LeagueSetup({ onComplete, availablePlayers = [] }: LeagueSetupProps) {
   const [settings, setSettings] = useState<LeagueSettings>({
     leagueName: '',
     rosterSlots: { ...DEFAULT_ROSTER_SLOTS },
@@ -122,10 +122,8 @@ export default function LeagueSetup({ onComplete }: LeagueSetupProps) {
 
     setIsSearching(true);
     try {
-      // Load more data when searching (same as DraftAssistant)
-      const searchLimit = query.trim() ? 500 : 50;
-      const response = await getRankings(2024, undefined, searchLimit, 0);
-      const filtered = response.results.filter(player => playerMatchesSearch(player, query));
+      // Use available players from props instead of making API call
+      const filtered = availablePlayers.filter(player => playerMatchesSearch(player, query));
       setSearchResults(filtered.slice(0, 10)); // Limit to 10 results
     } catch (error) {
       console.error('Error searching players:', error);

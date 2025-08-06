@@ -113,6 +113,20 @@ export default function DraftAssistant() {
       .finally(() => setLoading(false));
   }, [season, position, searchTerm]);
 
+  // Always load rankings data for League Setup search functionality
+  useEffect(() => {
+    if (activeTab === 'league-setup' && players.length === 0) {
+      setLoading(true);
+      getRankings(season, position, 500, 0)
+        .then((data) => {
+          setPlayers(data.results);
+          setTotalPlayers(data.total_count);
+        })
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
+    }
+  }, [activeTab, season, position, players.length]);
+
   // Load draft rankings when tab is active
   useEffect(() => {
     if (activeTab === 'draft') {
@@ -640,7 +654,7 @@ export default function DraftAssistant() {
                 {activeTab === 'season-planner' && <SeasonPlanner />}
                 {activeTab === 'trade-analyzer' && <TradeAnalyzer />}
                 {activeTab === 'simulator' && <Simulator />}
-                {activeTab === 'league-setup' && <LeagueSetup onComplete={() => setActiveTab('rankings')} />}
+                {activeTab === 'league-setup' && <LeagueSetup onComplete={() => setActiveTab('rankings')} availablePlayers={players} />}
               </div>
 
               {/* Enhanced Pagination */}
